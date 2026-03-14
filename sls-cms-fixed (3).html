@@ -1,0 +1,2576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLS CMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        :root { 
+            --primary-color: #1a5f7a; 
+            --secondary-color: #57c5b6; 
+            --accent-color: #159895; 
+            --font-family: 'Poppins', sans-serif;
+            --border-radius: 10px;
+        }
+        
+        body { font-family: var(--font-family); background-color: #f0f2f5; background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%); min-height: 100vh; }
+        
+        .login-container { height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; background: url('https://z-cdn-media.chatglm.cn/files/ce82f0d5-1492-490b-b1f5-d4757f3a15e2.jpg?auth_key=1873287174-763dee896e064506a0c40cd4168ececb-0-b265ec6b482209ff70e76a74bbffe918') center/cover no-repeat fixed; }
+        .login-container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(26, 95, 122, 0.85), rgba(0, 0, 0, 0.7)); }
+
+        .login-card { position: relative; z-index: 1; width: 480px; padding: 50px 45px; border-radius: 20px; background: rgba(255, 255, 255, 0.98); box-shadow: 0 15px 35px rgba(0,0,0,0.5); backdrop-filter: blur(12px); text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); transition: transform 0.3s ease; }
+        .login-card:hover { transform: translateY(-5px); }
+        .login-card .logo-img { width: 110px; margin-bottom: 20px; border-radius: 50%; border: 4px solid var(--primary-color); box-shadow: 0 4px 10px rgba(0,0,0,0.1); object-fit: cover; height: 110px; }
+        .login-title { font-size: 24px; font-weight: 700; color: var(--primary-color); margin-bottom: 5px; letter-spacing: 0.5px; white-space: nowrap; }
+        .login-subtitle { font-size: 13px; color: #777; margin-bottom: 40px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+        .login-card .form-control { background: #f7f9fc; border: 1px solid #e1e4e8; border-radius: 10px; padding: 12px 15px; font-size: 14px; transition: 0.3s; text-align: center; }
+        .login-card .form-control:focus { background: white; border-color: var(--secondary-color); box-shadow: 0 0 0 3px rgba(87, 197, 182, 0.15); }
+        .login-card .btn-custom { padding: 12px; font-weight: 600; letter-spacing: 0.5px; border-radius: 10px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border: none; transition: 0.3s; margin-top: 10px; color: white; text-transform: uppercase; font-size: 13px; }
+        .login-card .btn-custom:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(26, 95, 122, 0.3); }
+        .login-footer-text { margin-top: 35px; padding-top: 20px; border-top: 1px solid #eee; }
+        .footer-divider { width: 40px; height: 3px; background: var(--secondary-color); margin: 0 auto 15px auto; border-radius: 2px; }
+        .footer-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 2px; }
+        .footer-brand { color: var(--primary-color); font-weight: 700; font-size: 14px; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .footer-address { font-size: 11px; color: #666; }
+        .login-card .form-label { display: block; text-align: center; margin-bottom: 8px; font-weight: 600; color: #444; font-size: 13px; }
+
+        .wrapper { display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: var(--primary-color); color: white; flex-shrink: 0; box-shadow: 2px 0 5px rgba(0,0,0,0.1); transition: background 0.3s; }
+        .sidebar-header { padding: 20px; background: rgba(0,0,0,0.1); text-align: center; }
+        .sidebar-header .logo-img { width: 70px; height: 70px; border-radius: 50%; margin-bottom: 10px; object-fit: cover; background: white; }
+        .sidebar-header h5 { margin: 0; font-size: 1.1rem; }
+        .sidebar-menu { padding: 20px 0; }
+        .menu-item { padding: 15px 25px; display: flex; align-items: center; cursor: pointer; transition: 0.3s; border-left: 4px solid transparent; }
+        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); border-left-color: var(--secondary-color); }
+        .menu-item i { margin-right: 15px; font-size: 1.1rem; }
+        .main-content { flex-grow: 1; overflow-y: auto; background: #f4f9f9; }
+        .top-bar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .content-area { padding: 30px; }
+        .stat-card { background: white; border-radius: var(--border-radius); padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid var(--primary-color); transition: all 0.3s; }
+        .stat-card.success { border-left-color: #27ae60; } .stat-card.warning { border-left-color: #f39c12; } .stat-card.danger { border-left-color: #e74c3c; } .stat-card.info { border-left-color: #3498db; }
+        .stat-card h3 { margin: 0; font-weight: bold; }
+        .table-container { background: white; border-radius: var(--border-radius); padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .table thead { background: var(--primary-color); color: white; }
+        .btn-custom { background: var(--primary-color); color: white; border-radius: var(--border-radius); }
+        .role-badge { font-size: 10px; padding: 3px 6px; border-radius: 4px; margin-left: 5px; color: white; }
+        .role-master { background: #000; } .role-sub { background: #e74c3c; } .role-branch { background: #3498db; }
+        .print-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+        
+        .job-form-container { background: white; width: 297mm; min-height: 210mm; padding: 10mm 15mm; box-shadow: 0 0 25px rgba(0,0,0,0.6); box-sizing: border-box; overflow: hidden; font-size: 13px; position: relative; }
+
+        @media print {
+            #loginScreen, #dashboardScreen, .modal, .modal-backdrop, .no-print-btn { display: none !important; }
+            #printOverlay { display: block !important; position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; z-index: 99999; padding: 0; margin: 0; overflow: visible !important; }
+            #printOverlay .job-form-container { border: none !important; box-shadow: none !important; width: 100% !important; height: auto !important; padding: 5mm 10mm !important; margin: 0 !important; overflow: visible !important; font-size: 11px !important; }
+            @page { size: A4 landscape; margin: 0; }
+            input, textarea { border: none !important; border-bottom: 1px solid #000 !important; background: transparent !important; }
+        }
+
+        .form-header { text-align: center; margin-bottom: 5mm; padding-bottom: 3mm; border-bottom: 3px double #000; }
+        .form-logo { width: 60px; height: 60px; margin-bottom: 2mm; object-fit: cover; } 
+        .form-title { font-weight: 800; font-size: 22px; text-transform: uppercase; margin: 0; letter-spacing: 1px; }
+        .form-subtitle { font-size: 14px; margin: 0; font-weight: 600; }
+        
+        .f-input { border: none; border-bottom: 1px solid #000; background: transparent; width: 100%; font-size: 13px; padding: 0 5px; outline: none; line-height: 1.4; }
+        .compact-table td, .compact-table th { padding: 3px 5px !important; font-size: 13px; vertical-align: middle; }
+        
+        .branch-head-section-new { margin-top: 8mm; border: 1px solid #000; padding: 5mm; background-color: #fcfcfc; font-size: 13px; position: relative; }
+        .section-title { position: absolute; top: -8px; left: 10px; background: white; padding: 0 5px; font-weight: bold; font-size: 12px; }
+        .comment-line-improved { border-bottom: 1px dotted #999; margin-top: 10px; height: 25px; width: 100%; }
+        .sign-section-final { margin-top: 15mm; display: flex; justify-content: space-between; font-size: 13px; padding: 0 5mm; }
+        .sign-box-final { text-align: center; width: 30%; }
+        .sign-line-final { border-top: 1px solid #000; height: 15mm; margin-bottom: 2mm; width: 100%; }
+        .sign-label-final { font-weight: bold; margin: 0; font-size: 12px; }
+        .report-filter-card { background: white; padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .status-select-sm { font-size: 12px; padding: 4px; border-radius: 4px; border: 1px solid #ccc; }
+        .btn-whatsapp { background-color: #25D366; color: white; border-color: #25D366; }
+        .btn-whatsapp:hover { background-color: #1da851; color: white; }
+        .image-preview-container { margin-top: 10px; border: 1px dashed #ccc; padding: 10px; text-align: center; background: #f8f9fa; border-radius: 5px; }
+        .image-preview-container img { max-width: 100%; max-height: 200px; object-fit: contain; }
+        .view-img-btn { cursor: pointer; color: var(--primary-color); }
+        .view-img-btn:hover { color: var(--accent-color); }
+        
+        .alert-modal-content { border: 2px solid #e74c3c; border-radius: 10px; }
+        .alert-modal-header { background-color: #e74c3c; color: white; border-bottom: none; }
+        
+        .delayed-row { background-color: #fff0f0 !important; }
+        .delayed-row:hover { background-color: #ffe6e6 !important; }
+        .view-only-badge { font-size: 11px; color: #666; font-style: italic; }
+
+        .color-picker-wrapper { display: flex; align-items: center; gap: 10px; }
+        .color-picker-wrapper input[type="color"] { width: 50px; height: 35px; border: none; cursor: pointer; }
+        
+        .letter-card { background: white; border-radius: var(--border-radius); padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .letter-badge-pending { background-color: #f39c12; color: white; }
+        .letter-badge-received { background-color: #3498db; color: white; }
+        .letter-badge-reviewed { background-color: #9b59b6; color: white; }
+        .letter-badge-resolved { background-color: #27ae60; color: white; }
+        
+        .security-question-card { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-left: 5px solid #9b59b6; }
+        
+        .helper-auto-badge { background-color: #27ae60; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 5px; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <img id="loginLogo" src="https://z-cdn-media.chatglm.cn/files/0b009a08-217c-43d4-b835-60e4875a5851.jpg?auth_key=1872872049-6a2124c2f5014b2490f64c40f881c7cd-0-15bd88b891cf23b1f086976e1446d936" alt="Logo" class="logo-img">
+            <h4 class="login-title" id="loginTitle">SLS Montessori | School | College</h4>
+            <span class="login-subtitle">Complaint Management System</span>
+            
+            <div class="mb-3">
+                <label class="form-label">Login As</label>
+                <select id="loginRole" class="form-select" onchange="toggleLoginFields()">
+                    <option value="admin">Master Admin (HO)</option>
+                    <option value="subadmin">Sub-Admin (Area)</option>
+                    <option value="branch">Branch</option>
+                </select>
+            </div>
+
+            <div id="userInputDiv" class="mb-3 d-none">
+                <label class="form-label">Username</label>
+                <input type="text" id="loginUserInput" class="form-control" placeholder="Enter Username" onkeypress="handleLoginKeyPress(event)">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" id="loginPass" class="form-control" placeholder="Enter Password" onkeypress="handleLoginKeyPress(event)">
+            </div>
+            
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="rememberMe" onchange="toggleRememberMe()">
+                <label class="form-check-label" for="rememberMe">Remember Password</label>
+            </div>
+            
+            <small class="text-danger d-block mb-3" id="loginError" style="display:none;">Invalid Credentials!</small>
+            <button class="btn btn-custom w-100" onclick="attemptLogin()">Login <i class="fas fa-sign-in-alt ms-2"></i></button>
+            
+            <div class="mt-3">
+                <small class="text-muted" style="cursor:pointer; text-decoration: underline;" data-bs-toggle="modal" data-bs-target="#forgotModal">Forgot Password?</small>
+            </div>
+            
+            <div class="login-footer-text">
+                <div class="footer-divider"></div>
+                <p class="footer-title">Design & Make by</p>
+                <h6 class="footer-brand">SLS IT Department</h6>
+                <small class="d-block footer-address">Headoffice Bahria Phase-7</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORGOT PASSWORD MODAL -->
+    <div class="modal fade" id="forgotModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i>Reset Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="forgotSecuritySection"></div>
+                    <div id="forgotNoSecurity" class="text-center py-4 d-none">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                        <p class="text-muted">Security question not set up.</p>
+                        <p class="small text-muted">Please contact system administrator.</p>
+                    </div>
+                </div>
+                <div class="modal-footer" id="forgotFooter">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="processForgotPassword()">Verify & Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboardScreen" class="wrapper d-none">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img id="sidebarLogo" src="https://z-cdn-media.chatglm.cn/files/0b009a08-217c-43d4-b835-60e4875a5851.jpg?auth_key=1872872049-6a2124c2f5014b2490f64c40f881c7cd-0-15bd88b891cf23b1f086976e1446d936" alt="Logo" class="logo-img">
+                <h5 id="sidebarTitle">SLS Management</h5>
+                <small id="userRoleDisplay">Panel</small>
+            </div>
+            <div class="sidebar-menu">
+                <div class="master-admin-menu d-none">
+                    <div class="menu-item active" onclick="showSection('dashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+                    <div class="menu-item" onclick="showSection('settings')"><i class="fas fa-cogs"></i> Control Panel</div>
+                    <div class="menu-item" onclick="showSection('manageBranches')"><i class="fas fa-building"></i> Manage Branches</div>
+                    <div class="menu-item" onclick="showSection('manageSubAdmins')"><i class="fas fa-user-shield"></i> Manage Sub-Admins</div>
+                    <div class="menu-item" onclick="showSection('assignBranches')"><i class="fas fa-link"></i> Assign Branches</div>
+                    <div class="menu-item" onclick="showSection('manageTechs')"><i class="fas fa-users-cog"></i> Manage Staff & Workers</div>
+                    <div class="menu-item" onclick="showSection('allComplaints')"><i class="fas fa-clipboard-list"></i> All Complaints</div>
+                    <div class="menu-item" onclick="showSection('letters')"><i class="fas fa-envelope"></i> Letters from Branches</div>
+                    <div class="menu-item" onclick="showSection('reports')"><i class="fas fa-chart-bar"></i> Reports & Analytics</div>
+                </div>
+
+                <div class="sub-admin-menu d-none">
+                    <div class="menu-item active" onclick="showSection('dashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+                    <div class="menu-item" onclick="showSection('manageTechs')"><i class="fas fa-users-cog"></i> My Staff & Workers</div>
+                    <div class="menu-item" onclick="showSection('allComplaints')"><i class="fas fa-clipboard-list"></i> My Area Complaints</div>
+                    <div class="menu-item" onclick="showSection('reports')"><i class="fas fa-chart-bar"></i> Reports</div>
+                </div>
+
+                <div class="branch-menu d-none">
+                    <div class="menu-item active" onclick="showSection('branchDashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+                    <div class="menu-item" onclick="showSection('newComplaint')"><i class="fas fa-plus-circle"></i> New Complaint</div>
+                    <div class="menu-item" onclick="showSection('myComplaints')"><i class="fas fa-history"></i> My Complaints</div>
+                    <div class="menu-item" onclick="showSection('newLetter')"><i class="fas fa-paper-plane"></i> Send Letter to HO</div>
+                    <div class="menu-item" onclick="showSection('myLetters')"><i class="fas fa-envelope"></i> My Letters</div>
+                </div>
+
+                <div class="menu-item mt-5" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+            </div>
+        </nav>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <h5 id="pageTitle">Dashboard</h5>
+                <span id="currentUserName"></span>
+            </div>
+
+            <div class="content-area">
+                <!-- COMMON DASHBOARD -->
+                <div id="section_dashboard">
+                    <div class="row">
+                        <div class="col-md-3"><div class="stat-card"><h6>Total Branches</h6><h3 id="statBranches">0</h3></div></div>
+                        <div class="col-md-3"><div class="stat-card info"><h6>Total Complaints</h6><h3 id="statTotal">0</h3></div></div>
+                        <div class="col-md-3"><div class="stat-card warning"><h6>Pending</h6><h3 id="statPending">0</h3></div></div>
+                        <div class="col-md-3"><div class="stat-card success"><h6>Resolved</h6><h3 id="statResolved">0</h3></div></div>
+                    </div>
+                    <div class="table-container">
+                        <h5>Recent Activity</h5>
+                        <table class="table table-striped mt-3">
+                            <thead><tr><th>ID</th><th>Branch</th><th>Priority</th><th>Type</th><th>Created</th><th>Status</th><th>Closed On</th><th>Action</th></tr></thead>
+                            <tbody id="recentComplaintsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SETTINGS SECTION -->
+                <div id="section_settings" class="d-none">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="stat-card">
+                                <h5><i class="fas fa-user-shield"></i> Master Admin Control</h5>
+                                <hr>
+                                <div class="mb-3"><label>Display Name</label><input type="text" id="settingName" class="form-control" placeholder="HO"></div>
+                                <div class="mb-3"><label>Admin Phone (For Recovery)</label><input type="text" id="settingPhone" class="form-control" placeholder="03XX-XXXXXXX"></div>
+                                <div class="mb-3"><label>Admin Email (For Recovery)</label><input type="email" id="settingEmail" class="form-control" placeholder="admin@example.com"></div>
+                                <div class="mb-3"><label>Change Password</label><input type="text" id="settingPass" class="form-control" placeholder="Enter new password"></div>
+                                <button class="btn btn-primary w-100 mb-2" onclick="saveSettings()">Save Account Settings</button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="stat-card" style="border-left-color: #2c3e50;">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0"><i class="fas fa-users-cog"></i> Master Admins</h5>
+                                    <button class="btn btn-sm btn-success" onclick="openMasterAdminModal()"><i class="fas fa-plus"></i> Add New</button>
+                                </div>
+                                <hr>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                            <tr><th>Name</th><th>Username</th><th>Password</th><th>Action</th></tr>
+                                        </thead>
+                                        <tbody id="masterAdminsTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="stat-card security-question-card">
+                                <h5><i class="fas fa-key"></i> Security Question (Password Reset)</h5>
+                                <hr>
+                                <div id="securityStatus" class="mb-3"></div>
+                                <div class="mb-3">
+                                    <label>Select Security Question</label>
+                                    <select id="settingSecurityQuestion" class="form-select">
+                                        <option value="">-- Select Question --</option>
+                                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                                        <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                        <option value="In what city were you born?">In what city were you born?</option>
+                                        <option value="What is your favorite book?">What is your favorite book?</option>
+                                        <option value="What was the name of your elementary school?">What was the name of your elementary school?</option>
+                                        <option value="What is your father's middle name?">What is your father's middle name?</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Your Answer</label>
+                                    <input type="text" id="settingSecurityAnswer" class="form-control" placeholder="Enter your answer">
+                                </div>
+                                <button class="btn w-100" style="background-color: #9b59b6; color: white;" onclick="saveSecurityQuestion()">Save Security Question</button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="stat-card" style="border-left-color: #e67e22;">
+                                <h5><i class="fas fa-palette"></i> Branding & Logo</h5>
+                                <hr>
+                                <div class="mb-3">
+                                    <label>System Name (Title)</label>
+                                    <input type="text" id="settingSystemName" class="form-control" placeholder="e.g: SLS Montessori">
+                                </div>
+                                <div class="mb-3">
+                                    <label>Upload Logo (Square Image Recommended)</label>
+                                    <input type="file" id="settingLogoInput" class="form-control" accept="image/*" onchange="previewLogoSettings(this)">
+                                    <div class="mt-2 text-center">
+                                        <small>Current Logo:</small><br>
+                                        <img id="settingLogoPreview" src="" style="max-width: 80px; max-height: 80px; border-radius: 50%; border: 2px solid #ddd; padding: 2px;">
+                                    </div>
+                                </div>
+                                <button class="btn w-100" style="background-color: #e67e22; color: white;" onclick="saveBrandingSettings()">Save Branding</button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="stat-card" style="border-left-color: #17a2b8;">
+                                <h5><i class="fas fa-image"></i> Login Page Background</h5>
+                                <hr>
+                                <div class="mb-3">
+                                    <label>Upload Background Image</label>
+                                    <input type="file" id="settingLoginBgInput" class="form-control" accept="image/*" onchange="previewLoginBgSettings(this)">
+                                    <div class="mt-2 text-center">
+                                        <small>Current Background:</small><br>
+                                        <img id="settingLoginBgPreview" src="" style="max-width: 100%; max-height: 120px; border-radius: 8px; border: 2px solid #ddd; padding: 2px;">
+                                    </div>
+                                </div>
+                                <button class="btn w-100" style="background-color: #17a2b8; color: white;" onclick="saveLoginBgSettings()">Save Login Background</button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="stat-card" style="border-left-color: #9b59b6;">
+                                <h5><i class="fas fa-fill-drip"></i> Theme & Style</h5>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <label>Primary Color</label>
+                                        <div class="color-picker-wrapper">
+                                            <input type="color" id="themePrimary" value="#1a5f7a">
+                                            <span id="primaryHex">#1a5f7a</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label>Secondary Color</label>
+                                        <div class="color-picker-wrapper">
+                                            <input type="color" id="themeSecondary" value="#57c5b6">
+                                            <span id="secondaryHex">#57c5b6</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Font Family</label>
+                                    <select id="themeFont" class="form-select">
+                                        <option value="'Poppins', sans-serif">Poppins (Default)</option>
+                                        <option value="'Roboto', sans-serif">Roboto</option>
+                                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                                        <option value="Arial, sans-serif">Arial</option>
+                                        <option value="'Noto Nastaliq Urdu', serif">Noto Nastaliq Urdu</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Corner Style (Radius)</label>
+                                    <select id="themeRadius" class="form-select">
+                                        <option value="10px">Rounded (Default)</option>
+                                        <option value="20px">More Rounded</option>
+                                        <option value="5px">Slightly Rounded</option>
+                                        <option value="0px">Square (Sharp)</option>
+                                    </select>
+                                </div>
+                                <button class="btn w-100" style="background-color: #9b59b6; color: white;" onclick="saveThemeSettings()">Apply Theme</button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="stat-card" style="border-left-color: #34495e;">
+                                <h5><i class="fas fa-file-alt"></i> Print Form Editor</h5>
+                                <hr>
+                                <div class="mb-3">
+                                    <label>Form Main Title</label>
+                                    <input type="text" id="settingFormTitle" class="form-control" placeholder="e.g: SLS Montessori - School - College">
+                                </div>
+                                <div class="mb-3">
+                                    <label>Form Subtitle</label>
+                                    <input type="text" id="settingFormSubtitle" class="form-control" placeholder="e.g: Work Order / Complaint Performa">
+                                </div>
+                                <hr class="mt-4">
+                                <h6 class="text-primary">Signature Section (Bottom Lines)</h6>
+                                <div class="mb-2">
+                                    <label>Signature 1 Title (Left)</label>
+                                    <input type="text" id="settingSign1" class="form-control" placeholder="e.g: Technician">
+                                </div>
+                                <div class="mb-2">
+                                    <label>Signature 2 Title (Center)</label>
+                                    <input type="text" id="settingSign2" class="form-control" placeholder="e.g: Technician Incharge">
+                                </div>
+                                <div class="mb-3">
+                                    <label>Signature 3 Title (Right)</label>
+                                    <input type="text" id="settingSign3" class="form-control" placeholder="e.g: GM / Director">
+                                </div>
+                                <button class="btn w-100" style="background-color: #34495e; color: white;" onclick="saveFormSettings()">Save Form Layout</button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <div class="stat-card danger">
+                                <h5><i class="fas fa-exclamation-triangle"></i> Danger Zone</h5>
+                                <button class="btn btn-outline-danger w-100 mb-2" onclick="resetComplaintsData()"><i class="fas fa-trash-restore"></i> Reset All Complaints</button>
+                                <button class="btn btn-outline-warning w-100 mb-2" onclick="resetLettersData()"><i class="fas fa-envelope-open"></i> Reset All Letters</button>
+                                <button class="btn btn-danger w-100" onclick="hardReset()"><i class="fas fa-skull-crossbones"></i> Factory Reset (Clear All Data & Styles)</button>
+                                <small class="text-muted d-block mt-2">Warning: Factory Reset will delete all data and reset theme to default.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section_manageBranches" class="d-none"><div class="stat-card"><div class="d-flex justify-content-between align-items-center mb-3"><h5>Step 1: Create Branches</h5><button class="btn btn-success" onclick="openBranchModal()"><i class="fas fa-plus"></i> Add New Branch</button></div><div class="table-responsive"><table class="table table-bordered"><thead><tr><th>ID</th><th>Branch Name</th><th>Branch Head</th><th>Address</th><th>Phone</th><th>Username</th><th>Password</th><th>Action</th></tr></thead><tbody id="branchesTableBody"></tbody></table></div></div></div>
+                
+                <div id="section_manageSubAdmins" class="d-none"><div class="stat-card"><div class="d-flex justify-content-between align-items-center mb-3"><h5>Step 2: Manage Sub-Admins</h5><button class="btn btn-success" onclick="openSubAdminModal()"><i class="fas fa-plus"></i> Create Sub-Admin</button></div><div class="table-responsive"><table class="table table-bordered"><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Username</th><th>Password</th><th>Action</th></tr></thead><tbody id="subAdminsTableBody"></tbody></table></div></div></div>
+                
+                <div id="section_assignBranches" class="d-none"><div class="stat-card"><h5>Step 3: Assign Branches to Sub-Admins or HO</h5><p class="text-muted small">Assign branches to specific Area Admins or keep them under Head Office (HO) for direct control.</p><table class="table table-bordered"><thead><tr><th>Branch Name</th><th>Assigned To</th></tr></thead><tbody id="assignBranchesTableBody"></tbody></table></div></div>
+
+                <div id="section_manageTechs" class="d-none">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 id="techTitle">Manage Staff & Workers</h5>
+                            <button id="addTechBtn" class="btn btn-success" onclick="openTechModal()"><i class="fas fa-plus"></i> Add Staff / Worker</button>
+                        </div>
+                        <div id="techAssignInfo" class="alert alert-info small d-none"><strong>Master Admin:</strong> Assign staff to Sub-Admins or HO.</div>
+                        <div id="techHelperInfo" class="alert alert-warning small"><strong>Important:</strong> Helpers must be linked to a Technician.</div>
+                        <div id="techViewOnlyInfo" class="alert alert-info small d-none"><strong>Note:</strong> Staff is assigned by Head Office. You can only view your assigned staff.</div>
+                        <table class="table table-bordered" id="techTable">
+                            <thead id="techTableHead"><tr><th>ID</th><th>Name</th><th>Designation</th><th>Phone</th><th>Assignment / Linking</th><th>Action</th></tr></thead>
+                            <tbody id="techsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="section_allComplaints" class="d-none"><div class="table-container"><h5 id="complaintTitle">All Complaints</h5><table class="table table-hover"><thead><tr><th>ID</th><th>Branch</th><th>Priority</th><th>Category</th><th>Details</th><th>Photo</th><th>Created</th><th>Status</th><th>Closed On</th><th>Action</th></tr></thead><tbody id="allComplaintsTable"></tbody></table></div></div>
+                
+                <div id="section_reports" class="d-none"><div class="report-filter-card"><h5><i class="fas fa-filter"></i> Generate Report</h5><div class="row mb-3"><div class="col-md-2 mb-2"><label>Start Date</label><input type="date" id="reportStartDate" class="form-control" onchange="updateReportPreview()"></div><div class="col-md-2 mb-2"><label>End Date</label><input type="date" id="reportEndDate" class="form-control" onchange="updateReportPreview()"></div><div class="col-md-2 mb-2"><label>Sub-Admin</label><select id="reportSubAdmin" class="form-select" onchange="filterReportBranches()"><option value="All">All</option></select></div><div class="col-md-2 mb-2"><label>Branch</label><select id="reportBranch" class="form-select" onchange="updateReportPreview()"><option value="All">All Branches</option></select></div><div class="col-md-2 mb-2"><label>Status</label><select id="reportStatus" class="form-select" onchange="updateReportPreview()"><option value="All">All</option><option value="Pending">Pending</option><option value="Working">Working</option><option value="Resolved">Resolved</option></select></div><div class="col-md-2 mb-2"><label>&nbsp;</label><button class="btn btn-custom w-100 d-block" onclick="generatePDF()"><i class="fas fa-file-pdf"></i> Download PDF</button></div></div><div class="row"><div class="col-md-6 mb-2"><div class="input-group"><span class="input-group-text"><i class="fas fa-search"></i></span><input type="text" id="reportSearchInput" class="form-control" placeholder="Search by ID, Category..." oninput="updateReportPreview()"></div></div><div class="col-md-6 d-flex gap-2 align-items-end justify-content-end"><button class="btn btn-outline-secondary btn-sm" onclick="setQuickDate('today')">Today</button><button class="btn btn-outline-secondary btn-sm" onclick="setQuickDate('week')">This Week</button><button class="btn btn-outline-secondary btn-sm" onclick="setQuickDate('month')">This Month</button></div></div></div><div class="table-container"><h5>Preview</h5><div class="table-responsive"><table class="table table-sm table-bordered" id="reportPreviewTable"><thead><tr><th>ID</th><th>Branch</th><th>Category</th><th>Priority</th><th>Created</th><th>Status</th><th>Closed On</th></tr></thead><tbody id="reportPreviewBody"></tbody></table></div></div></div>
+
+                <div id="section_branchDashboard"><div class="row"><div class="col-md-6"><div class="stat-card"><h6>My Total Complaints</h6><h3 id="branchTotalComp">0</h3></div></div><div class="col-md-6"><div class="stat-card warning"><h6>Pending Status</h6><h3 id="branchPendingComp">0</h3></div></div></div></div>
+                
+                <div id="section_newComplaint" class="d-none">
+                    <div class="stat-card">
+                        <h5>Submit New Complaint</h5>
+                        <form onsubmit="submitComplaint(event)">
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label>Category</label>
+                                    <select id="compCategory" class="form-select" required>
+                                        <option value="">Select...</option>
+                                        <option value="Electricity">Electricity</option>
+                                        <option value="Plumber">Plumber</option>
+                                        <option value="Mason">Mason</option>
+                                        <option value="Carpenter">Carpenter</option>
+                                        <option value="White Wash / Paint">White Wash / Paint</option>
+                                        <option value="IT Support / CCTV">IT Support / CCTV</option>
+                                        <option value="Security">Security</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3"><label>Priority</label><select id="compPriority" class="form-select" required><option value="Routine">Routine</option><option value="Urgent">Urgent</option></select></div>
+                            </div>
+                            <div class="mb-3"><label>Complaint Details</label><textarea id="compDetails" class="form-control" rows="3" required placeholder="Describe the issue..."></textarea></div>
+                            <div class="mb-3"><label>Attach Photo (Optional)</label><input type="file" id="compImage" class="form-control" accept="image/*" onchange="previewImage(this)"><div id="imagePreviewBox" class="image-preview-container d-none mt-2"><img id="imgPreview" src="#" alt="Preview"><button type="button" class="btn btn-sm btn-danger mt-2" onclick="clearImage()">Remove</button></div></div>
+                            <button type="submit" class="btn btn-success w-100">Submit Complaint</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div id="section_myComplaints" class="d-none"><div class="table-container"><h5>My Complaints History</h5><table class="table table-hover"><thead><tr><th>ID</th><th>Category</th><th>Priority</th><th>Details</th><th>Created</th><th>Status</th><th>Closed On</th><th>Action</th></tr></thead><tbody id="myComplaintsTable"></tbody></table></div></div>
+
+                <!-- NEW LETTER TO HO SECTION -->
+                <div id="section_newLetter" class="d-none">
+                    <div class="letter-card">
+                        <h5><i class="fas fa-paper-plane me-2"></i>Send Letter/Demand to Head Office</h5>
+                        <hr>
+                        <form onsubmit="submitLetter(event)">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label>Letter Type</label>
+                                    <select id="letterType" class="form-select" required>
+                                        <option value="">Select Type...</option>
+                                        <option value="Demand">Demand / Request</option>
+                                        <option value="Complaint">Complaint Letter</option>
+                                        <option value="Suggestion">Suggestion</option>
+                                        <option value="Report">Report</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Addressed To</label>
+                                    <select id="letterAddressedTo" class="form-select" required>
+                                        <option value="">Select...</option>
+                                        <option value="Chairman">Chairman</option>
+                                        <option value="Director">Director</option>
+                                        <option value="GM">GM</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label>Subject</label>
+                                <input type="text" id="letterSubject" class="form-control" required placeholder="Enter letter subject...">
+                            </div>
+                            <div class="mb-3">
+                                <label>Letter Content</label>
+                                <textarea id="letterContent" class="form-control" rows="6" required placeholder="Write your letter content here..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-paper-plane me-2"></i>Send Letter to HO</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- MY LETTERS SECTION (Branch View) -->
+                <div id="section_myLetters" class="d-none">
+                    <div class="letter-card">
+                        <h5><i class="fas fa-envelope me-2"></i>My Letters to HO</h5>
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Letter No</th>
+                                        <th>Type</th>
+                                        <th>Subject</th>
+                                        <th>To</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="myLettersTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- LETTERS FROM BRANCHES (HO View) -->
+                <div id="section_letters" class="d-none">
+                    <div class="letter-card">
+                        <h5><i class="fas fa-envelope-open-text me-2"></i>Letters from Branches</h5>
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Letter No</th>
+                                        <th>Branch</th>
+                                        <th>Branch Head</th>
+                                        <th>Type</th>
+                                        <th>Subject</th>
+                                        <th>To</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allLettersTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal fade" id="subAdminModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 id="subAdminModalTitle">Create Sub-Admin</h5></div><div class="modal-body"><input type="hidden" id="editSubAdminId"><div class="mb-2"><label>Name</label><input type="text" id="subAdminName" class="form-control"></div><div class="mb-2"><label>Phone</label><input type="text" id="subAdminPhone" class="form-control" placeholder="03XX-XXXXXXX"></div><div class="mb-2"><label>Username</label><input type="text" id="subAdminUser" class="form-control"></div><div class="mb-2"><label>Password</label><input type="text" id="subAdminPass" class="form-control"></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-primary" onclick="saveSubAdmin()">Save</button></div></div></div></div>
+    <div class="modal fade" id="branchModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 id="branchModalTitle">Add New Branch</h5></div><div class="modal-body"><input type="hidden" id="editBranchId"><div class="mb-2"><label>Branch Name</label><input type="text" id="newBranchName" class="form-control"></div><div class="mb-2"><label>Branch Head Name</label><input type="text" id="newBranchHead" class="form-control" placeholder="Enter Branch Head Name"></div><div class="mb-2"><label>Address</label><input type="text" id="newBranchAddress" class="form-control" placeholder="Full Address"></div><div class="mb-2"><label>Phone</label><input type="text" id="newBranchPhone" class="form-control" placeholder="Branch Phone"></div><div class="mb-2"><label>Username</label><input type="text" id="newBranchUser" class="form-control"></div><div class="mb-2"><label>Password</label><input type="text" id="newBranchPass" class="form-control"></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-primary" onclick="saveBranch()">Save</button></div></div></div></div>
+    
+    <div class="modal fade" id="masterAdminModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="masterAdminModalTitle">Add Master Admin</h5>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editMasterAdminId">
+                    <div class="mb-2"><label>Display Name</label><input type="text" id="masterAdminName" class="form-control" placeholder="e.g: Admin"></div>
+                    <div class="mb-2"><label>Username</label><input type="text" id="masterAdminUsername" class="form-control" placeholder="Login username"></div>
+                    <div class="mb-2"><label>Password</label><input type="text" id="masterAdminPassword" class="form-control" placeholder="Login password"></div>
+                    <div class="mb-2"><label>Phone</label><input type="text" id="masterAdminPhone" class="form-control" placeholder="03XX-XXXXXXX"></div>
+                    <div class="mb-2"><label>Email</label><input type="email" id="masterAdminEmail" class="form-control" placeholder="admin@example.com"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" onclick="saveMasterAdmin()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="techModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 id="techModalTitle">Add Staff / Worker</h5></div>
+                <div class="modal-body">
+                    <input type="hidden" id="editTechId">
+                    <div class="mb-2"><label>Name</label><input type="text" id="techNameInput" class="form-control"></div>
+                    <div class="mb-2">
+                        <label>Designation</label>
+                        <select id="techSpecInput" class="form-select" onchange="toggleHelperFields()"><option>Electrician</option><option>Plumber</option><option>Carpenter</option><option>Mason</option><option>White Wash / Paint</option><option>Helper</option><option>IT Support / CCTV</option><option>Security</option></select>
+                    </div>
+                    <div class="mb-2"><label>Phone</label><input type="text" id="techPhoneInput" class="form-control"></div>
+                    <div id="adminAssignDiv" class="mb-2">
+                        <label>Assign To (Admin)</label>
+                        <select id="techAdminAssign" class="form-select"><option value="">-- Unassigned --</option><option value="HO">Head Office (HO)</option></select>
+                    </div>
+                    <div id="helperAssignDiv" class="mb-2 d-none">
+                        <label>Assist Technician</label>
+                        <select id="techAssistInput" class="form-select"><option value="">-- None --</option></select>
+                    </div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-primary" onclick="saveTech()">Save</button></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="alertModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content alert-modal-content"><div class="modal-header alert-modal-header"><h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Alert</h5></div><div class="modal-body"><p id="alertModalText"></p></div><div class="modal-footer"><button class="btn btn-danger" data-bs-dismiss="modal">OK</button></div></div></div></div>
+    
+    <div class="modal fade" id="complaintModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header"><h5 id="complaintModalTitle">Complaint Details</h5></div>
+                <div class="modal-body" id="complaintModalBody"></div>
+                <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="viewLetterModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header"><h5 id="viewLetterTitle">Letter Details</h5></div>
+                <div class="modal-body" id="viewLetterBody"></div>
+                <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="printOverlay" class="print-overlay"><div class="job-form-container" id="printFormContainer"></div></div>
+
+    <script>
+        // ==================== DATA INITIALIZATION ====================
+        const DEFAULT_MASTER = { id: 1, name: 'HO', username: 'admin', password: 'admin123', phone: '', email: '', securityQuestion: '', securityAnswer: '' };
+        const DEFAULT_THEME = { primary: '#1a5f7a', secondary: '#57c5b6', font: "'Poppins', sans-serif", radius: '10px' };
+        const DEFAULT_BRANDING = { 
+            systemName: 'SLS Montessori | School | College', 
+            logo: 'https://z-cdn-media.chatglm.cn/files/0b009a08-217c-43d4-b835-60e4875a5851.jpg?auth_key=1872872049-6a2124c2f5014b2490f64c40f881c7cd-0-15bd88b891cf23b1f086976e1446d936',
+            loginBackground: 'https://z-cdn-media.chatglm.cn/files/ce82f0d5-1492-490b-b1f5-d4757f3a15e2.jpg?auth_key=1873287174-763dee896e064506a0c40cd4168ececb-0-b265ec6b482209ff70e76a74bbffe918'
+        };
+        const DEFAULT_FORM = { title: 'SLS Montessori - School - College', subtitle: 'Work Order / Complaint Performa', sign1: 'Technician', sign2: 'Technician Incharge', sign3: 'GM / Director' };
+        
+        const DEFAULT_DATA = {
+            masterAdmins: [JSON.parse(JSON.stringify(DEFAULT_MASTER))],
+            formSettings: JSON.parse(JSON.stringify(DEFAULT_FORM)),
+            themeSettings: JSON.parse(JSON.stringify(DEFAULT_THEME)),
+            brandingSettings: JSON.parse(JSON.stringify(DEFAULT_BRANDING)),
+            subAdmins: [],
+            branches: [], 
+            technicians: [], 
+            complaints: [], 
+            letters: [],
+            counters: { complaintId: 1001, letterId: 1 }
+        };
+
+        let data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        
+        // Load data from localStorage
+        function loadData() {
+            try {
+                const storedData = localStorage.getItem('sls_data');
+                if (storedData) { 
+                    const parsed = JSON.parse(storedData); 
+                    data = { ...data, ...parsed }; 
+                    if(!data.subAdmins) data.subAdmins = []; 
+                    if(!data.branches) data.branches = []; 
+                    if(!data.technicians) data.technicians = []; 
+                    if(!data.complaints) data.complaints = []; 
+                    if(!data.letters) data.letters = [];
+                    if(!data.themeSettings) data.themeSettings = JSON.parse(JSON.stringify(DEFAULT_THEME)); 
+                    if(!data.brandingSettings) data.brandingSettings = JSON.parse(JSON.stringify(DEFAULT_BRANDING));
+                    if(!data.formSettings) data.formSettings = JSON.parse(JSON.stringify(DEFAULT_FORM));
+                    if(!data.counters) data.counters = { complaintId: 1001, letterId: 1 };
+                    if(!data.counters.letterId) data.counters.letterId = 1;
+                    
+                    // MIGRATION: Add masterAdminId to existing data (assign to first admin if not set)
+                    if(data.branches.length > 0 && !data.branches[0].masterAdminId) {
+                        const firstAdminId = data.masterAdmins && data.masterAdmins[0] ? data.masterAdmins[0].id : 1;
+                        data.branches.forEach(b => { if(!b.masterAdminId) b.masterAdminId = firstAdminId; });
+                        data.subAdmins.forEach(s => { if(!s.masterAdminId) s.masterAdminId = firstAdminId; });
+                        data.technicians.forEach(t => { if(!t.masterAdminId) t.masterAdminId = firstAdminId; });
+                        data.complaints.forEach(c => { if(!c.masterAdminId) c.masterAdminId = firstAdminId; });
+                        data.letters.forEach(l => { if(!l.masterAdminId) l.masterAdminId = firstAdminId; });
+                        saveData();
+                    }
+                }
+            } catch (e) { 
+                console.error('Error loading data:', e);
+                localStorage.removeItem('sls_data'); 
+                data = JSON.parse(JSON.stringify(DEFAULT_DATA)); 
+            }
+            
+            // Handle migration from old masterSettings to new masterAdmins array
+            if (!data.masterAdmins || data.masterAdmins.length === 0) {
+                if (data.masterSettings) {
+                    // Migrate old masterSettings to masterAdmins array
+                    data.masterAdmins = [{
+                        id: 1,
+                        name: data.masterSettings.name || 'HO',
+                        username: data.masterSettings.username || 'admin',
+                        password: data.masterSettings.password || 'admin123',
+                        phone: data.masterSettings.phone || '',
+                        email: data.masterSettings.email || '',
+                        securityQuestion: data.masterSettings.securityQuestion || '',
+                        securityAnswer: data.masterSettings.securityAnswer || ''
+                    }];
+                } else {
+                    data.masterAdmins = [JSON.parse(JSON.stringify(DEFAULT_MASTER))];
+                }
+            }
+            
+            // Ensure all master admins have required fields
+            data.masterAdmins.forEach(admin => {
+                if (!admin.username) admin.username = 'admin' + admin.id;
+                if (!admin.phone) admin.phone = "";
+                if (!admin.email) admin.email = "";
+                if (!admin.securityQuestion) admin.securityQuestion = "";
+                if (!admin.securityAnswer) admin.securityAnswer = "";
+            });
+        }
+        
+        // Initialize data on page load
+        loadData();
+        
+        function saveData() { 
+            localStorage.setItem('sls_data', JSON.stringify(data)); 
+            console.log('Data saved. Letters count:', data.letters.length);
+        }
+        
+        // ==================== UTILITY FUNCTIONS ====================
+        function getTodayDate() { const d = new Date(); return d.toISOString().split('T')[0]; }
+        function formatDate(d) { if(!d) return '-'; const date = new Date(d); return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+        
+        // Get current Master Admin ID for data isolation
+        function getCurrentMasterAdminId() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if(currentUser && currentUser.id) {
+                return currentUser.id;
+            }
+            // Fallback to first admin
+            return data.masterAdmins && data.masterAdmins[0] ? data.masterAdmins[0].id : 1;
+        }
+        
+        // Filter data by current Master Admin
+        function getMyBranches() {
+            const adminId = getCurrentMasterAdminId();
+            return data.branches.filter(b => b.masterAdminId === adminId);
+        }
+        
+        function getMySubAdmins() {
+            const adminId = getCurrentMasterAdminId();
+            return data.subAdmins.filter(s => s.masterAdminId === adminId);
+        }
+        
+        function getMyTechnicians() {
+            const adminId = getCurrentMasterAdminId();
+            return data.technicians.filter(t => t.masterAdminId === adminId);
+        }
+        
+        function getMyComplaints() {
+            const adminId = getCurrentMasterAdminId();
+            return data.complaints.filter(c => c.masterAdminId === adminId);
+        }
+        
+        function getMyLetters() {
+            const adminId = getCurrentMasterAdminId();
+            return data.letters.filter(l => l.masterAdminId === adminId);
+        }
+        
+        function saveSession(role, userData = null) { 
+            localStorage.setItem('activeSession', role); 
+            if(userData) localStorage.setItem('currentUser', JSON.stringify(userData)); 
+            else localStorage.removeItem('currentUser'); 
+        }
+        
+        function clearSession() { 
+            localStorage.removeItem('activeSession'); 
+            localStorage.removeItem('currentUser'); 
+        }
+        
+        function checkSession() { 
+            const role = localStorage.getItem('activeSession'); 
+            if(role === 'admin') showDashboard('admin'); 
+            else if(role === 'subadmin') showDashboard('subadmin'); 
+            else if (role === 'branch') { 
+                try { 
+                    const user = JSON.parse(localStorage.getItem('currentUser')); 
+                    if(user) showDashboard('branch'); 
+                } catch(e) { clearSession(); } 
+            } 
+        }
+        
+        function toggleLoginFields() { 
+            const role = document.getElementById('loginRole').value; 
+            const userDiv = document.getElementById('userInputDiv'); 
+            const userInput = document.getElementById('loginUserInput');
+            const userLabel = userDiv.querySelector('label');
+            
+            // Show username field for branch, subadmin, and master admin (if multiple admins exist)
+            if(role === 'branch' || role === 'subadmin') {
+                userDiv.classList.remove('d-none');
+                userLabel.innerText = 'Username';
+                userInput.placeholder = 'Enter Username';
+            } else if(role === 'admin') {
+                // For Master Admin, show username if multiple admins exist
+                if(data.masterAdmins && data.masterAdmins.length > 1) {
+                    userDiv.classList.remove('d-none');
+                    userLabel.innerText = 'Username';
+                    userInput.placeholder = 'Enter Username';
+                } else {
+                    userDiv.classList.add('d-none');
+                }
+            } else {
+                userDiv.classList.add('d-none');
+            }
+            
+            // Load saved password for selected role
+            loadSavedPassword();
+        }
+        
+        // Handle Enter key press on login form
+        function handleLoginKeyPress(event) {
+            if(event.key === 'Enter' || event.keyCode === 13) {
+                event.preventDefault();
+                attemptLogin();
+            }
+        }
+        
+        // ==================== REMEMBER PASSWORD SYSTEM ====================
+        function toggleRememberMe() {
+            const role = document.getElementById('loginRole').value;
+            const remember = document.getElementById('rememberMe').checked;
+            
+            if(remember) {
+                savePassword(role);
+            } else {
+                clearSavedPassword(role);
+            }
+        }
+        
+        function savePassword(role) {
+            const pass = document.getElementById('loginPass').value;
+            const username = document.getElementById('loginUserInput').value;
+            
+            let savedPasswords = JSON.parse(localStorage.getItem('sls_saved_passwords') || '{}');
+            savedPasswords[role] = {
+                password: pass,
+                username: username
+            };
+            localStorage.setItem('sls_saved_passwords', JSON.stringify(savedPasswords));
+        }
+        
+        function clearSavedPassword(role) {
+            let savedPasswords = JSON.parse(localStorage.getItem('sls_saved_passwords') || '{}');
+            delete savedPasswords[role];
+            localStorage.setItem('sls_saved_passwords', JSON.stringify(savedPasswords));
+        }
+        
+        function loadSavedPassword() {
+            const role = document.getElementById('loginRole').value;
+            let savedPasswords = JSON.parse(localStorage.getItem('sls_saved_passwords') || '{}');
+            
+            if(savedPasswords[role]) {
+                document.getElementById('loginPass').value = savedPasswords[role].password || '';
+                document.getElementById('loginUserInput').value = savedPasswords[role].username || '';
+                document.getElementById('rememberMe').checked = true;
+            } else {
+                document.getElementById('loginPass').value = '';
+                document.getElementById('loginUserInput').value = '';
+                document.getElementById('rememberMe').checked = false;
+            }
+        }
+
+        // ==================== LOGIN SYSTEM ====================
+        function attemptLogin() {
+            const role = document.getElementById('loginRole').value; 
+            const pass = document.getElementById('loginPass').value; 
+            const username = document.getElementById('loginUserInput').value; 
+            const error = document.getElementById('loginError'); 
+            error.style.display = 'none';
+            
+            let loginSuccess = false;
+            
+            if(role === 'admin') { 
+                // Check if multiple master admins exist
+                if(data.masterAdmins && data.masterAdmins.length > 1) {
+                    // Require username when multiple admins exist
+                    if(!username) {
+                        error.innerText = "Please enter username!"; 
+                        error.style.display = 'block';
+                        return;
+                    }
+                    // Check both username AND password
+                    const masterAdmin = data.masterAdmins.find(m => 
+                        (m.username === username || m.username === username.toLowerCase()) && m.password === pass
+                    );
+                    if(masterAdmin) { 
+                        saveSession('admin', masterAdmin); 
+                        showDashboard('admin'); 
+                        loginSuccess = true;
+                    } else { 
+                        error.innerText = "Invalid Username or Password!"; 
+                        error.style.display = 'block'; 
+                    }
+                } else {
+                    // Single admin - just check password (backward compatible)
+                    const masterAdmin = data.masterAdmins.find(m => m.password === pass);
+                    if(masterAdmin) { 
+                        saveSession('admin', masterAdmin); 
+                        showDashboard('admin'); 
+                        loginSuccess = true;
+                    } else { 
+                        error.innerText = "Invalid Password!"; 
+                        error.style.display = 'block'; 
+                    }
+                }
+            }
+            else if (role === 'subadmin') { 
+                const sub = data.subAdmins.find(s => s.username === username); 
+                if(sub && sub.pass === pass) { 
+                    saveSession('subadmin', sub); 
+                    showDashboard('subadmin'); 
+                    loginSuccess = true;
+                } else { 
+                    error.innerText = "Invalid Sub-Admin Credentials!"; 
+                    error.style.display = 'block'; 
+                } 
+            }
+            else if (role === 'branch') { 
+                const branch = data.branches.find(b => b.username === username); 
+                if(branch && branch.pass === pass) { 
+                    saveSession('branch', branch); 
+                    showDashboard('branch'); 
+                    loginSuccess = true;
+                } else { 
+                    error.innerText = "Invalid Branch Credentials!"; 
+                    error.style.display = 'block'; 
+                } 
+            }
+            
+            // Save password if Remember Me is checked and login successful
+            if(loginSuccess && document.getElementById('rememberMe').checked) {
+                savePassword(role);
+            }
+        }
+
+        function showDashboard(role) {
+            document.getElementById('loginScreen').classList.add('d-none'); 
+            document.getElementById('dashboardScreen').classList.remove('d-none');
+            document.querySelector('.master-admin-menu').classList.add('d-none'); 
+            document.querySelector('.sub-admin-menu').classList.add('d-none'); 
+            document.querySelector('.branch-menu').classList.add('d-none');
+            
+            if(role === 'admin') { 
+                document.querySelector('.master-admin-menu').classList.remove('d-none'); 
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                const displayName = currentUser ? currentUser.name : (data.masterAdmins[0] ? data.masterAdmins[0].name : 'HO');
+                document.getElementById('userRoleDisplay').innerHTML = displayName + " <span class='role-badge role-master'>Super User</span>"; 
+                document.getElementById('currentUserName').innerText = displayName; 
+                showSection('dashboard'); 
+                loadDashboardStats('admin'); 
+            }
+            else if(role === 'subadmin') { 
+                document.querySelector('.sub-admin-menu').classList.remove('d-none'); 
+                const user = JSON.parse(localStorage.getItem('currentUser')); 
+                document.getElementById('userRoleDisplay').innerHTML = user.name + " <span class='role-badge role-sub'>Sub-Admin</span>"; 
+                showSection('dashboard'); 
+                loadDashboardStats('subadmin'); 
+            }
+            else { 
+                document.querySelector('.branch-menu').classList.remove('d-none'); 
+                const branch = JSON.parse(localStorage.getItem('currentUser')); 
+                document.getElementById('userRoleDisplay').innerHTML = branch.name + " <span class='role-badge role-branch'>Branch</span>"; 
+                document.getElementById('currentUserName').innerText = branch.name; 
+                showSection('branchDashboard'); 
+                loadBranchStats(); 
+            }
+            checkPendingAlerts(role);
+        }
+        
+        function checkPendingAlerts(role) {
+            if(role !== 'admin' && role !== 'subadmin') return;
+            let complaintsToCheck;
+            
+            if(role === 'subadmin') {
+                const user = JSON.parse(localStorage.getItem('currentUser')); 
+                const myBranchIds = getMyBranches().filter(b => b.assignedTo === user.id).map(b => b.id); 
+                complaintsToCheck = getMyComplaints().filter(c => myBranchIds.includes(c.branchId)); 
+            } else {
+                complaintsToCheck = getMyComplaints();
+            }
+            
+            const today = getTodayDate();
+            const delayed = complaintsToCheck.filter(c => c.status !== 'Resolved' && c.date < today);
+            if(delayed.length > 0) {
+                document.getElementById('alertModalText').innerText = `Warning: ${delayed.length} pending/delayed complaints require attention!`;
+                new bootstrap.Modal(document.getElementById('alertModal')).show();
+            }
+        }
+        
+        function logout() { 
+            clearSession(); 
+            document.getElementById('dashboardScreen').classList.add('d-none'); 
+            document.getElementById('loginScreen').classList.remove('d-none'); 
+        }
+
+        // ==================== SECTION NAVIGATION ====================
+        function showSection(sectionId) { 
+            document.querySelectorAll('[id^="section_"]').forEach(sec => sec.classList.add('d-none')); 
+            document.getElementById('section_' + sectionId).classList.remove('d-none'); 
+            if(sectionId === 'settings') loadSettings(); 
+            if(sectionId === 'manageSubAdmins') renderSubAdmins(); 
+            if(sectionId === 'manageBranches') renderBranches(); 
+            if(sectionId === 'assignBranches') renderAssignBranches(); 
+            if(sectionId === 'manageTechs') renderTechnicians(); 
+            if(sectionId === 'allComplaints' || sectionId === 'dashboard') renderAllComplaints(); 
+            if(sectionId === 'myComplaints' || sectionId === 'branchDashboard') renderBranchComplaints(); 
+            if(sectionId === 'reports') initReports(); 
+            if(sectionId === 'myLetters') renderMyLetters();
+            if(sectionId === 'letters') renderAllLetters();
+        }
+
+        // ==================== SETTINGS FUNCTIONS ====================
+        function loadSettings() { 
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const admin = currentUser ? data.masterAdmins.find(a => a.id === currentUser.id) : data.masterAdmins[0];
+            
+            if(admin) {
+                document.getElementById('settingName').value = admin.name; 
+                document.getElementById('settingPhone').value = admin.phone || ""; 
+                document.getElementById('settingEmail').value = admin.email || ""; 
+                document.getElementById('settingPass').value = admin.password;
+            }
+            
+            applyTheme(); 
+            applyBranding();
+            applyLoginBackground();
+            updateSecurityStatus();
+            renderMasterAdmins();
+        }
+        
+        function saveSettings() { 
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const admin = currentUser ? data.masterAdmins.find(a => a.id === currentUser.id) : data.masterAdmins[0];
+            
+            if(admin) {
+                admin.name = document.getElementById('settingName').value || 'HO'; 
+                admin.phone = document.getElementById('settingPhone').value || ""; 
+                admin.email = document.getElementById('settingEmail').value || ""; 
+                const newPass = document.getElementById('settingPass').value; 
+                if(newPass) admin.password = newPass; 
+                
+                // Update currentUser in localStorage
+                localStorage.setItem('currentUser', JSON.stringify(admin));
+            }
+            
+            saveData(); 
+            alert('Account Settings updated!'); 
+            logout(); 
+        }
+        
+        function updateSecurityStatus() {
+            const statusDiv = document.getElementById('securityStatus');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const admin = currentUser ? data.masterAdmins.find(a => a.id === currentUser.id) : data.masterAdmins[0];
+            
+            if(admin && admin.securityQuestion) {
+                statusDiv.innerHTML = '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Security Question Set</span>';
+            } else {
+                statusDiv.innerHTML = '<span class="badge bg-warning"><i class="fas fa-exclamation-triangle"></i> No Security Question Set</span>';
+            }
+        }
+        
+        function saveSecurityQuestion() {
+            const question = document.getElementById('settingSecurityQuestion').value;
+            const answer = document.getElementById('settingSecurityAnswer').value;
+            if(!question || !answer) {
+                alert('Please select a question and provide an answer.');
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const admin = currentUser ? data.masterAdmins.find(a => a.id === currentUser.id) : data.masterAdmins[0];
+            
+            if(admin) {
+                admin.securityQuestion = question;
+                admin.securityAnswer = answer.toLowerCase().trim();
+            }
+            
+            saveData();
+            updateSecurityStatus();
+            alert('Security question saved successfully!');
+        }
+        
+        // ==================== MASTER ADMIN MANAGEMENT ====================
+        function renderMasterAdmins() {
+            const tbody = document.getElementById('masterAdminsTableBody');
+            tbody.innerHTML = '';
+            
+            data.masterAdmins.forEach(admin => {
+                const maskedPass = admin.password ? admin.password.substring(0, 2) + '****' : '****';
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${admin.name}</td>
+                        <td>${admin.username || 'admin' + admin.id}</td>
+                        <td><span class="text-muted">${maskedPass}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" onclick="editMasterAdmin(${admin.id})"><i class="fas fa-edit"></i></button>
+                            ${data.masterAdmins.length > 1 ? `<button class="btn btn-sm btn-danger" onclick="deleteMasterAdmin(${admin.id})"><i class="fas fa-trash"></i></button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            // Add login instruction if multiple admins
+            if(data.masterAdmins.length > 1) {
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'alert alert-info small mt-2 mb-0';
+                infoDiv.innerHTML = '<i class="fas fa-info-circle me-1"></i> <strong>Login Info:</strong> Multiple Master Admins detected. On login page, each admin must enter their <strong>Username</strong> and <strong>Password</strong> to login.';
+                tbody.parentElement.parentElement.appendChild(infoDiv);
+            }
+        }
+        
+        function openMasterAdminModal() {
+            document.getElementById('editMasterAdminId').value = '';
+            document.getElementById('masterAdminName').value = '';
+            document.getElementById('masterAdminUsername').value = '';
+            document.getElementById('masterAdminPassword').value = '';
+            document.getElementById('masterAdminPhone').value = '';
+            document.getElementById('masterAdminEmail').value = '';
+            document.getElementById('masterAdminModalTitle').innerText = "Add Master Admin";
+            new bootstrap.Modal(document.getElementById('masterAdminModal')).show();
+        }
+        
+        function editMasterAdmin(id) {
+            const admin = data.masterAdmins.find(a => a.id === id);
+            if(!admin) return;
+            
+            document.getElementById('editMasterAdminId').value = id;
+            document.getElementById('masterAdminName').value = admin.name;
+            document.getElementById('masterAdminUsername').value = admin.username || '';
+            document.getElementById('masterAdminPassword').value = admin.password;
+            document.getElementById('masterAdminPhone').value = admin.phone || '';
+            document.getElementById('masterAdminEmail').value = admin.email || '';
+            document.getElementById('masterAdminModalTitle').innerText = "Edit Master Admin";
+            new bootstrap.Modal(document.getElementById('masterAdminModal')).show();
+        }
+        
+        function saveMasterAdmin() {
+            const id = document.getElementById('editMasterAdminId').value;
+            const name = document.getElementById('masterAdminName').value;
+            let username = document.getElementById('masterAdminUsername').value.trim().toLowerCase();
+            const password = document.getElementById('masterAdminPassword').value;
+            const phone = document.getElementById('masterAdminPhone').value;
+            const email = document.getElementById('masterAdminEmail').value;
+            
+            if(!name || !password) {
+                alert('Please fill in Name and Password');
+                return;
+            }
+            
+            // Auto-generate username if not provided
+            if(!username) {
+                const newId = data.masterAdmins.length ? Math.max(...data.masterAdmins.map(a => a.id)) + 1 : 1;
+                username = 'admin' + (id || newId);
+            }
+            
+            // Check for duplicate username (case-insensitive)
+            const existingAdmin = data.masterAdmins.find(a => 
+                a.username && a.username.toLowerCase() === username && a.id != id
+            );
+            if(existingAdmin) {
+                alert('Username already exists! Please choose a different username.');
+                return;
+            }
+            
+            if(id) {
+                // Edit existing
+                const admin = data.masterAdmins.find(a => a.id == id);
+                if(admin) {
+                    admin.name = name;
+                    admin.username = username;
+                    admin.password = password;
+                    admin.phone = phone;
+                    admin.email = email;
+                }
+            } else {
+                // Add new
+                const newId = data.masterAdmins.length ? Math.max(...data.masterAdmins.map(a => a.id)) + 1 : 1;
+                data.masterAdmins.push({
+                    id: newId,
+                    name: name,
+                    username: username,
+                    password: password,
+                    phone: phone,
+                    email: email,
+                    securityQuestion: '',
+                    securityAnswer: ''
+                });
+            }
+            
+            saveData();
+            renderMasterAdmins();
+            bootstrap.Modal.getInstance(document.getElementById('masterAdminModal')).hide();
+            alert('Master Admin saved successfully!');
+        }
+        
+        function deleteMasterAdmin(id) {
+            if(data.masterAdmins.length <= 1) {
+                alert('Cannot delete the last Master Admin!');
+                return;
+            }
+            
+            if(confirm('Are you sure you want to delete this Master Admin?')) {
+                data.masterAdmins = data.masterAdmins.filter(a => a.id !== id);
+                saveData();
+                renderMasterAdmins();
+                alert('Master Admin deleted!');
+            }
+        }
+        
+        function saveBrandingSettings() {
+            data.brandingSettings.systemName = document.getElementById('settingSystemName').value || 'SLS Management';
+            const logoInput = document.getElementById('settingLogoInput');
+            if(logoInput.files && logoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    data.brandingSettings.logo = e.target.result;
+                    saveData();
+                    applyBranding();
+                    alert('Branding settings saved!');
+                };
+                reader.readAsDataURL(logoInput.files[0]);
+            } else {
+                saveData();
+                applyBranding();
+                alert('Branding settings saved!');
+            }
+        }
+        
+        function previewLogoSettings(input) {
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('settingLogoPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function previewLoginBgSettings(input) {
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('settingLoginBgPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function saveLoginBgSettings() {
+            const bgInput = document.getElementById('settingLoginBgInput');
+            if(bgInput.files && bgInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    data.brandingSettings.loginBackground = e.target.result;
+                    saveData();
+                    applyLoginBackground();
+                    alert('Login background saved!');
+                };
+                reader.readAsDataURL(bgInput.files[0]);
+            } else {
+                alert('Please select an image file first.');
+            }
+        }
+        
+        function applyLoginBackground() {
+            const loginContainer = document.querySelector('.login-container');
+            if(loginContainer && data.brandingSettings.loginBackground) {
+                loginContainer.style.backgroundImage = `url('${data.brandingSettings.loginBackground}')`;
+            }
+            // Update preview
+            const preview = document.getElementById('settingLoginBgPreview');
+            if(preview && data.brandingSettings.loginBackground) {
+                preview.src = data.brandingSettings.loginBackground;
+            }
+        }
+        
+        function saveThemeSettings() {
+            data.themeSettings.primary = document.getElementById('themePrimary').value;
+            data.themeSettings.secondary = document.getElementById('themeSecondary').value;
+            data.themeSettings.font = document.getElementById('themeFont').value;
+            data.themeSettings.radius = document.getElementById('themeRadius').value;
+            saveData();
+            applyTheme();
+            alert('Theme applied!');
+        }
+        
+        function applyTheme() {
+            document.documentElement.style.setProperty('--primary-color', data.themeSettings.primary);
+            document.documentElement.style.setProperty('--secondary-color', data.themeSettings.secondary);
+            document.documentElement.style.setProperty('--font-family', data.themeSettings.font);
+            document.documentElement.style.setProperty('--border-radius', data.themeSettings.radius);
+            document.getElementById('themePrimary').value = data.themeSettings.primary;
+            document.getElementById('themeSecondary').value = data.themeSettings.secondary;
+            document.getElementById('themeFont').value = data.themeSettings.font;
+            document.getElementById('themeRadius').value = data.themeSettings.radius;
+            document.getElementById('primaryHex').innerText = data.themeSettings.primary;
+            document.getElementById('secondaryHex').innerText = data.themeSettings.secondary;
+        }
+        
+        function applyBranding() {
+            document.getElementById('loginTitle').innerText = data.brandingSettings.systemName;
+            document.getElementById('sidebarTitle').innerText = data.brandingSettings.systemName.split('|')[0].trim();
+            document.getElementById('loginLogo').src = data.brandingSettings.logo;
+            document.getElementById('sidebarLogo').src = data.brandingSettings.logo;
+            document.getElementById('settingLogoPreview').src = data.brandingSettings.logo;
+            document.getElementById('settingSystemName').value = data.brandingSettings.systemName;
+            document.getElementById('settingFormTitle').value = data.formSettings.title;
+            document.getElementById('settingFormSubtitle').value = data.formSettings.subtitle;
+            document.getElementById('settingSign1').value = data.formSettings.sign1;
+            document.getElementById('settingSign2').value = data.formSettings.sign2;
+            document.getElementById('settingSign3').value = data.formSettings.sign3;
+        }
+        
+        function saveFormSettings() {
+            data.formSettings.title = document.getElementById('settingFormTitle').value;
+            data.formSettings.subtitle = document.getElementById('settingFormSubtitle').value;
+            data.formSettings.sign1 = document.getElementById('settingSign1').value;
+            data.formSettings.sign2 = document.getElementById('settingSign2').value;
+            data.formSettings.sign3 = document.getElementById('settingSign3').value;
+            saveData();
+            alert('Form settings saved!');
+        }
+        
+        function resetComplaintsData() { 
+            if(confirm('Delete all complaints?')) { 
+                data.complaints = []; 
+                data.counters.complaintId = 1001; 
+                saveData(); 
+                showSection('dashboard'); 
+            } 
+        }
+        
+        function resetLettersData() { 
+            if(confirm('Delete all letters?')) { 
+                data.letters = []; 
+                data.counters.letterId = 1; 
+                saveData(); 
+                showSection('letters'); 
+            } 
+        }
+        
+        function hardReset() { 
+            if(confirm("This will delete ALL data and reset everything. Proceed?")) { 
+                localStorage.removeItem('sls_data'); 
+                location.reload(); 
+            } 
+        }
+
+        // ==================== FORGOT PASSWORD ====================
+        document.getElementById('forgotModal').addEventListener('show.bs.modal', function () {
+            const securitySection = document.getElementById('forgotSecuritySection');
+            const noSecurity = document.getElementById('forgotNoSecurity');
+            const footer = document.getElementById('forgotFooter');
+            
+            const masterAdmin = data.masterAdmins[0]; // Use first master admin for forgot password
+            
+            if(masterAdmin && masterAdmin.securityQuestion) {
+                securitySection.classList.remove('d-none');
+                noSecurity.classList.add('d-none');
+                footer.classList.remove('d-none');
+                securitySection.innerHTML = `
+                    <p class="mb-3"><strong>Security Question:</strong></p>
+                    <p class="alert alert-info">${masterAdmin.securityQuestion}</p>
+                    <div class="mb-3">
+                        <label>Your Answer:</label>
+                        <input type="text" id="forgotAnswer" class="form-control" placeholder="Enter your answer">
+                    </div>
+                    <div class="mb-3 d-none" id="newPassSection">
+                        <label>Enter New Password:</label>
+                        <input type="text" id="forgotNewPass" class="form-control" placeholder="New password">
+                    </div>
+                `;
+            } else {
+                securitySection.classList.add('d-none');
+                noSecurity.classList.remove('d-none');
+                footer.classList.add('d-none');
+            }
+        });
+        
+        function processForgotPassword() {
+            const masterAdmin = data.masterAdmins[0]; // Use first master admin
+            if(!masterAdmin || !masterAdmin.securityQuestion) return;
+            
+            const answer = document.getElementById('forgotAnswer').value.toLowerCase().trim();
+            const newPassSection = document.getElementById('newPassSection');
+            
+            if(newPassSection.classList.contains('d-none')) {
+                if(answer === masterAdmin.securityAnswer) {
+                    newPassSection.classList.remove('d-none');
+                    document.getElementById('forgotAnswer').disabled = true;
+                    alert('Answer correct! Please enter your new password.');
+                } else {
+                    alert('Incorrect answer. Please try again.');
+                }
+            } else {
+                const newPass = document.getElementById('forgotNewPass').value;
+                if(newPass) {
+                    masterAdmin.password = newPass;
+                    saveData();
+                    bootstrap.Modal.getInstance(document.getElementById('forgotModal')).hide();
+                    alert('Password reset successfully! Please login with your new password.');
+                } else {
+                    alert('Please enter a new password.');
+                }
+            }
+        }
+
+        // ==================== BRANCH MANAGEMENT ====================
+        function renderBranches() {
+            const tbody = document.getElementById('branchesTableBody');
+            tbody.innerHTML = '';
+            const branches = getMyBranches();
+            branches.forEach(b => {
+                tbody.innerHTML += `<tr>
+                    <td>${b.id}</td>
+                    <td>${b.name}</td>
+                    <td>${b.branchHead || '-'}</td>
+                    <td>${b.address || '-'}</td>
+                    <td>${b.phone || '-'}</td>
+                    <td>${b.username}</td>
+                    <td>${b.pass}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" onclick="editBranch(${b.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteBranch(${b.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+        }
+        
+        function openBranchModal(id = null) {
+            document.getElementById('editBranchId').value = '';
+            document.getElementById('newBranchName').value = '';
+            document.getElementById('newBranchHead').value = '';
+            document.getElementById('newBranchAddress').value = '';
+            document.getElementById('newBranchPhone').value = '';
+            document.getElementById('newBranchUser').value = '';
+            document.getElementById('newBranchPass').value = '';
+            document.getElementById('branchModalTitle').innerText = "Add New Branch";
+            new bootstrap.Modal(document.getElementById('branchModal')).show();
+        }
+        
+        function editBranch(id) {
+            const branches = getMyBranches();
+            const b = branches.find(x => x.id === id);
+            if(!b) return alert('Branch not found or access denied');
+            document.getElementById('editBranchId').value = id;
+            document.getElementById('newBranchName').value = b.name;
+            document.getElementById('newBranchHead').value = b.branchHead || '';
+            document.getElementById('newBranchAddress').value = b.address || '';
+            document.getElementById('newBranchPhone').value = b.phone || '';
+            document.getElementById('newBranchUser').value = b.username;
+            document.getElementById('newBranchPass').value = b.pass;
+            document.getElementById('branchModalTitle').innerText = "Edit Branch";
+            new bootstrap.Modal(document.getElementById('branchModal')).show();
+        }
+        
+        function saveBranch() {
+            const id = document.getElementById('editBranchId').value;
+            const name = document.getElementById('newBranchName').value;
+            const branchHead = document.getElementById('newBranchHead').value;
+            const address = document.getElementById('newBranchAddress').value;
+            const phone = document.getElementById('newBranchPhone').value;
+            const user = document.getElementById('newBranchUser').value;
+            const pass = document.getElementById('newBranchPass').value;
+            
+            if(!name || !user || !pass) return alert("Fill all required fields");
+            
+            const masterAdminId = getCurrentMasterAdminId();
+            
+            if(id) {
+                const idx = data.branches.findIndex(b => b.id == id);
+                if(data.branches[idx].masterAdminId !== masterAdminId) {
+                    return alert('Access denied: This branch belongs to another admin');
+                }
+                data.branches[idx] = {...data.branches[idx], name, branchHead, address, phone, username: user, pass: pass};
+            } else {
+                const newId = data.branches.length ? Math.max(...data.branches.map(b => b.id)) + 1 : 1;
+                data.branches.push({id: newId, name, branchHead, address, phone, username: user, pass: pass, assignedTo: '', masterAdminId: masterAdminId});
+            }
+            saveData();
+            renderBranches();
+            bootstrap.Modal.getInstance(document.getElementById('branchModal')).hide();
+        }
+        
+        function deleteBranch(id) {
+            const masterAdminId = getCurrentMasterAdminId();
+            const branch = data.branches.find(b => b.id === id);
+            if(branch && branch.masterAdminId !== masterAdminId) {
+                return alert('Access denied: This branch belongs to another admin');
+            }
+            if(confirm('Delete?')) {
+                data.branches = data.branches.filter(b => b.id !== id);
+                data.complaints = data.complaints.filter(c => c.branchId !== id);
+                data.letters = data.letters.filter(l => l.branchId !== id);
+                saveData();
+                renderBranches();
+            }
+        }
+
+        // ==================== SUB-ADMIN MANAGEMENT ====================
+        function renderSubAdmins() {
+            const tbody = document.getElementById('subAdminsTableBody');
+            tbody.innerHTML = '';
+            const subAdmins = getMySubAdmins();
+            subAdmins.forEach(s => {
+                tbody.innerHTML += `<tr>
+                    <td>${s.id}</td>
+                    <td>${s.name}</td>
+                    <td>${s.phone || '-'}</td>
+                    <td>${s.username}</td>
+                    <td>${s.pass}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" onclick="editSubAdmin(${s.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSubAdmin(${s.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+        }
+        
+        function openSubAdminModal() {
+            document.getElementById('editSubAdminId').value = '';
+            document.getElementById('subAdminName').value = '';
+            document.getElementById('subAdminPhone').value = '';
+            document.getElementById('subAdminUser').value = '';
+            document.getElementById('subAdminPass').value = '';
+            document.getElementById('subAdminModalTitle').innerText = "Create Sub-Admin";
+            new bootstrap.Modal(document.getElementById('subAdminModal')).show();
+        }
+        
+        function editSubAdmin(id) {
+            const subAdmins = getMySubAdmins();
+            const s = subAdmins.find(x => x.id === id);
+            if(!s) return alert('Sub-Admin not found or access denied');
+            document.getElementById('editSubAdminId').value = id;
+            document.getElementById('subAdminName').value = s.name;
+            document.getElementById('subAdminPhone').value = s.phone || '';
+            document.getElementById('subAdminUser').value = s.username;
+            document.getElementById('subAdminPass').value = s.pass;
+            document.getElementById('subAdminModalTitle').innerText = "Edit Sub-Admin";
+            new bootstrap.Modal(document.getElementById('subAdminModal')).show();
+        }
+        
+        function saveSubAdmin() {
+            const id = document.getElementById('editSubAdminId').value;
+            const name = document.getElementById('subAdminName').value;
+            const phone = document.getElementById('subAdminPhone').value;
+            const user = document.getElementById('subAdminUser').value;
+            const pass = document.getElementById('subAdminPass').value;
+            
+            if(!name || !user || !pass) return alert("Fill all required fields");
+            
+            const masterAdminId = getCurrentMasterAdminId();
+            
+            if(id) {
+                const idx = data.subAdmins.findIndex(s => s.id == id);
+                if(data.subAdmins[idx].masterAdminId !== masterAdminId) {
+                    return alert('Access denied: This Sub-Admin belongs to another admin');
+                }
+                data.subAdmins[idx] = {...data.subAdmins[idx], name, phone, username: user, pass: pass};
+            } else {
+                const newId = data.subAdmins.length ? Math.max(...data.subAdmins.map(s => s.id)) + 1 : 1;
+                data.subAdmins.push({id: newId, name, phone, username: user, pass: pass, masterAdminId: masterAdminId});
+            }
+            saveData();
+            renderSubAdmins();
+            bootstrap.Modal.getInstance(document.getElementById('subAdminModal')).hide();
+        }
+        
+        function deleteSubAdmin(id) {
+            const masterAdminId = getCurrentMasterAdminId();
+            const subAdmin = data.subAdmins.find(s => s.id === id);
+            if(subAdmin && subAdmin.masterAdminId !== masterAdminId) {
+                return alert('Access denied: This Sub-Admin belongs to another admin');
+            }
+            if(confirm('Delete?')) {
+                data.subAdmins = data.subAdmins.filter(s => s.id !== id);
+                // Unassign branches and technicians from deleted sub-admin
+                const myBranches = getMyBranches();
+                myBranches.forEach(b => { if(b.assignedTo === id) b.assignedTo = ''; });
+                const myTechs = getMyTechnicians();
+                myTechs.forEach(t => { if(t.assignedTo === id) t.assignedTo = ''; });
+                saveData();
+                renderSubAdmins();
+            }
+        }
+
+        // ==================== ASSIGN BRANCHES ====================
+        function renderAssignBranches() {
+            const tbody = document.getElementById('assignBranchesTableBody');
+            tbody.innerHTML = '';
+            const branches = getMyBranches();
+            const subAdmins = getMySubAdmins();
+            branches.forEach(b => {
+                let options = '';
+                options += `<option value="HO" ${b.assignedTo == 'HO' ? 'selected' : ''}>Head Office (HO)</option>`;
+                options += `<option value="" ${!b.assignedTo ? 'selected' : ''}>-- Unassigned --</option>`;
+                subAdmins.forEach(s => {
+                    options += `<option value="${s.id}" ${b.assignedTo == s.id ? 'selected' : ''}>${s.name}</option>`;
+                });
+                tbody.innerHTML += `<tr><td><strong>${b.name}</strong></td><td><select class="form-select" onchange="assignBranch(${b.id}, this.value)">${options}</select></td></tr>`;
+            });
+        }
+        
+        function assignBranch(branchId, value) {
+            const masterAdminId = getCurrentMasterAdminId();
+            const branch = data.branches.find(b => b.id === branchId);
+            if(branch && branch.masterAdminId !== masterAdminId) {
+                return alert('Access denied');
+            }
+            if(value === "HO") {
+                branch.assignedTo = "HO";
+            } else {
+                branch.assignedTo = value ? parseInt(value) : '';
+            }
+            saveData();
+        }
+
+        // ==================== TECHNICIAN/STAFF MANAGEMENT ====================
+        function renderTechnicians() { 
+            const role = localStorage.getItem('activeSession'); 
+            const user = JSON.parse(localStorage.getItem('currentUser')); 
+            const tbody = document.getElementById('techsTableBody'); 
+            const title = document.getElementById('techTitle'); 
+            const info = document.getElementById('techAssignInfo'); 
+            const helperInfo = document.getElementById('techHelperInfo');
+            const viewOnlyInfo = document.getElementById('techViewOnlyInfo');
+            const addBtn = document.getElementById('addTechBtn');
+            const tableHead = document.getElementById('techTableHead');
+            
+            tbody.innerHTML = ''; 
+            let filtered = [];
+            const mySubAdmins = getMySubAdmins();
+            
+            if(role === 'subadmin') { 
+                filtered = data.technicians.filter(t => t.assignedTo === user.id); 
+                title.innerText = "My Staff & Workers"; 
+                info.classList.add('d-none');
+                helperInfo.classList.add('d-none');
+                viewOnlyInfo.classList.remove('d-none');
+                addBtn.classList.add('d-none');
+                tableHead.innerHTML = '<tr><th>ID</th><th>Name</th><th>Designation</th><th>Phone</th><th>Linked To</th></tr>';
+            } else { 
+                // Master Admin - only show their own technicians
+                filtered = getMyTechnicians();
+                title.innerText = "Manage Staff & Workers"; 
+                info.classList.remove('d-none'); 
+                helperInfo.classList.remove('d-none');
+                viewOnlyInfo.classList.add('d-none');
+                addBtn.classList.remove('d-none');
+                tableHead.innerHTML = '<tr><th>ID</th><th>Name</th><th>Designation</th><th>Phone</th><th>Assignment / Linking</th><th>Action</th></tr>';
+            } 
+            
+            filtered.forEach(t => { 
+                if(role === 'subadmin') {
+                    let linkedTo = '-';
+                    if(t.spec === 'Helper' && t.linkedTechId) {
+                        const linkedTech = data.technicians.find(x => x.id === t.linkedTechId);
+                        if(linkedTech) linkedTo = linkedTech.name;
+                    }
+                    tbody.innerHTML += `<tr>
+                        <td>${t.id}</td>
+                        <td>${t.name}</td>
+                        <td>${t.spec}</td>
+                        <td>${t.phone}</td>
+                        <td>${linkedTo}</td>
+                    </tr>`; 
+                } else {
+                    let assignSelect = '';
+                    
+                    if(t.spec === 'Helper') {
+                        let techOptions = '<option value="">-- None --</option>';
+                        filtered.filter(x => x.spec !== 'Helper').forEach(tech => {
+                            const isLinked = (t.linkedTechId == tech.id); 
+                            techOptions += `<option value="${tech.id}" ${isLinked ? 'selected' : ''}>Assist: ${tech.name}</option>`;
+                        });
+                        assignSelect = `<select class="form-select form-select-sm" onchange="linkHelper(${t.id}, this.value)">${techOptions}</select>`;
+                    } else {
+                        let options = '<option value="">-- Unassigned --</option>'; 
+                        options += `<option value="HO" ${t.assignedTo == 'HO' ? 'selected' : ''}>Head Office (HO)</option>`; 
+                        mySubAdmins.forEach(s => { options += `<option value="${s.id}" ${t.assignedTo == s.id ? 'selected' : ''}>${s.name}</option>`; }); 
+                        assignSelect = `<select class="form-select form-select-sm" onchange="assignTechnician(${t.id}, this.value)">${options}</select>`; 
+                    }
+                    
+                    tbody.innerHTML += `<tr>
+                        <td>${t.id}</td>
+                        <td>${t.name}</td>
+                        <td>${t.spec}</td>
+                        <td>${t.phone}</td>
+                        <td>${assignSelect}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" onclick="editTech(${t.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTechnician(${t.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`; 
+                }
+            }); 
+        }
+        
+        function assignTechnician(techId, value) {
+            const masterAdminId = getCurrentMasterAdminId();
+            const tech = data.technicians.find(t => t.id === techId);
+            if(tech && tech.masterAdminId !== masterAdminId) {
+                return alert('Access denied');
+            }
+            if(value === "HO") {
+                tech.assignedTo = "HO";
+            } else {
+                tech.assignedTo = value ? parseInt(value) : '';
+            }
+            saveData();
+        }
+        
+        function linkHelper(helperId, techId) { 
+            const masterAdminId = getCurrentMasterAdminId();
+            const helper = data.technicians.find(t => t.id === helperId);
+            if(helper && helper.masterAdminId !== masterAdminId) {
+                return alert('Access denied');
+            }
+            if(techId) {
+                const tech = data.technicians.find(t => t.id == techId); 
+                if(tech) helper.assignedTo = tech.assignedTo;
+                helper.linkedTechId = parseInt(techId); 
+            } else {
+                helper.linkedTechId = null; 
+            }
+            saveData(); 
+        }
+        
+        function openTechModal() { 
+            document.getElementById('editTechId').value = '';
+            document.getElementById('techNameInput').value = ''; 
+            document.getElementById('techPhoneInput').value = '';
+            document.getElementById('techSpecInput').value = "Electrician"; 
+            
+            const adminAssignDiv = document.getElementById('adminAssignDiv');
+            const techAdminAssign = document.getElementById('techAdminAssign');
+            const mySubAdmins = getMySubAdmins();
+            
+            adminAssignDiv.classList.remove('d-none');
+            techAdminAssign.innerHTML = '<option value="">-- Unassigned --</option><option value="HO">Head Office (HO)</option>';
+            mySubAdmins.forEach(s => {
+                techAdminAssign.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+            });
+            
+            toggleHelperFields(); 
+            new bootstrap.Modal(document.getElementById('techModal')).show(); 
+        }
+
+        function toggleHelperFields() {
+            const spec = document.getElementById('techSpecInput').value;
+            const helperDiv = document.getElementById('helperAssignDiv');
+            const assistSelect = document.getElementById('techAssistInput');
+            const myTechnicians = getMyTechnicians();
+            
+            assistSelect.innerHTML = '<option value="">-- None --</option>';
+            
+            if(spec === 'Helper') {
+                helperDiv.classList.remove('d-none');
+                myTechnicians.filter(t => t.spec !== 'Helper').forEach(t => {
+                    assistSelect.innerHTML += `<option value="${t.id}">${t.name} (${t.spec})</option>`;
+                });
+            } else {
+                helperDiv.classList.add('d-none');
+            }
+        }
+
+        function editTech(id) {
+            const myTechnicians = getMyTechnicians();
+            const t = myTechnicians.find(tech => tech.id === id);
+            if(!t) return alert('Staff not found or access denied');
+            
+            document.getElementById('editTechId').value = id;
+            document.getElementById('techNameInput').value = t.name;
+            document.getElementById('techSpecInput').value = t.spec;
+            document.getElementById('techPhoneInput').value = t.phone;
+            document.getElementById('techModalTitle').innerText = "Edit Staff / Worker";
+            
+            const adminAssignDiv = document.getElementById('adminAssignDiv');
+            const techAdminAssign = document.getElementById('techAdminAssign');
+            const mySubAdmins = getMySubAdmins();
+            
+            adminAssignDiv.classList.remove('d-none');
+            techAdminAssign.innerHTML = '<option value="">-- Unassigned --</option><option value="HO">Head Office (HO)</option>';
+            mySubAdmins.forEach(s => {
+                techAdminAssign.innerHTML += `<option value="${s.id}" ${t.assignedTo == s.id ? 'selected' : ''}>${s.name}</option>`;
+            });
+            if(t.assignedTo === 'HO') techAdminAssign.value = 'HO';
+            
+            toggleHelperFields();
+            if(t.spec === 'Helper' && t.linkedTechId) {
+                document.getElementById('techAssistInput').value = t.linkedTechId;
+            }
+            
+            new bootstrap.Modal(document.getElementById('techModal')).show();
+        }
+        
+        function saveTech() {
+            const id = document.getElementById('editTechId').value;
+            const name = document.getElementById('techNameInput').value;
+            const spec = document.getElementById('techSpecInput').value;
+            const phone = document.getElementById('techPhoneInput').value;
+            const adminAssign = document.getElementById('techAdminAssign').value;
+            const assistTech = document.getElementById('techAssistInput').value;
+            
+            if(!name || !spec) return alert("Fill all required fields");
+            
+            const masterAdminId = getCurrentMasterAdminId();
+            let assignedTo = adminAssign || '';
+            
+            if(id) {
+                const idx = data.technicians.findIndex(t => t.id == id);
+                if(data.technicians[idx].masterAdminId !== masterAdminId) {
+                    return alert('Access denied: This staff belongs to another admin');
+                }
+                data.technicians[idx] = {
+                    ...data.technicians[idx], 
+                    name, 
+                    spec, 
+                    phone, 
+                    assignedTo,
+                    linkedTechId: (spec === 'Helper' && assistTech) ? parseInt(assistTech) : null
+                };
+            } else {
+                const newId = data.technicians.length ? Math.max(...data.technicians.map(t => t.id)) + 1 : 1;
+                data.technicians.push({
+                    id: newId, 
+                    name, 
+                    spec, 
+                    phone, 
+                    assignedTo,
+                    masterAdminId: masterAdminId,
+                    linkedTechId: (spec === 'Helper' && assistTech) ? parseInt(assistTech) : null
+                });
+            }
+            
+            saveData();
+            renderTechnicians();
+            bootstrap.Modal.getInstance(document.getElementById('techModal')).hide();
+        }
+        
+        function deleteTechnician(id) {
+            const masterAdminId = getCurrentMasterAdminId();
+            const tech = data.technicians.find(t => t.id === id);
+            if(tech && tech.masterAdminId !== masterAdminId) {
+                return alert('Access denied: This staff belongs to another admin');
+            }
+            if(confirm('Delete this staff member?')) {
+                data.technicians = data.technicians.filter(t => t.id !== id);
+                data.technicians.forEach(t => {
+                    if(t.linkedTechId === id) t.linkedTechId = null;
+                });
+                saveData();
+                renderTechnicians();
+            }
+        }
+
+        // ==================== COMPLAINTS SYSTEM ====================
+        function loadDashboardStats(role) {
+            let complaints, branches;
+            
+            if(role === 'subadmin') {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                const myBranchIds = getMyBranches().filter(b => b.assignedTo === user.id).map(b => b.id);
+                complaints = getMyComplaints().filter(c => myBranchIds.includes(c.branchId));
+                branches = getMyBranches().filter(b => b.assignedTo === user.id);
+            } else {
+                // Master Admin - only their own data
+                complaints = getMyComplaints();
+                branches = getMyBranches();
+            }
+            
+            document.getElementById('statBranches').innerText = branches.length;
+            document.getElementById('statTotal').innerText = complaints.length;
+            document.getElementById('statPending').innerText = complaints.filter(c => c.status !== 'Resolved').length;
+            document.getElementById('statResolved').innerText = complaints.filter(c => c.status === 'Resolved').length;
+        }
+        
+        function loadBranchStats() {
+            const branch = JSON.parse(localStorage.getItem('currentUser'));
+            const myComplaints = getMyComplaints().filter(c => c.branchId === branch.id);
+            document.getElementById('branchTotalComp').innerText = myComplaints.length;
+            document.getElementById('branchPendingComp').innerText = myComplaints.filter(c => c.status !== 'Resolved').length;
+        }
+        
+        function renderAllComplaints() {
+            const role = localStorage.getItem('activeSession');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const tbody = document.getElementById('recentComplaintsTable');
+            const complaintTitle = document.getElementById('complaintTitle');
+            
+            let complaints;
+            
+            if(role === 'subadmin') {
+                const myBranchIds = getMyBranches().filter(b => b.assignedTo === user.id).map(b => b.id);
+                complaints = getMyComplaints().filter(c => myBranchIds.includes(c.branchId));
+                if(complaintTitle) complaintTitle.innerText = "My Area Complaints";
+            } else {
+                // Master Admin - only their own complaints
+                complaints = getMyComplaints();
+                if(complaintTitle) complaintTitle.innerText = "All Complaints";
+            }
+            
+            tbody.innerHTML = '';
+            complaints.sort((a, b) => b.id - a.id);
+            
+            complaints.slice(0, 20).forEach(c => {
+                const isDelayed = c.status !== 'Resolved' && c.date < getTodayDate();
+                tbody.innerHTML += `<tr class="${isDelayed ? 'delayed-row' : ''}">
+                    <td><strong>${c.id}</strong></td>
+                    <td>${c.branchName}</td>
+                    <td><span class="badge ${c.priority === 'Urgent' ? 'bg-danger' : 'bg-secondary'}">${c.priority}</span></td>
+                    <td>${c.category}</td>
+                    <td>${formatDate(c.date)}</td>
+                    <td><span class="badge ${c.status === 'Pending' ? 'bg-warning' : c.status === 'Working' ? 'bg-info' : 'bg-success'}">${c.status}</span></td>
+                    <td>${formatDate(c.closedDate)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewComplaint(${c.id})"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="showPrintForm(data.complaints.find(x => x.id === ${c.id}))"><i class="fas fa-print"></i></button>
+                    </td>
+                </tr>`;
+            });
+        }
+        
+        function renderBranchComplaints() {
+            const branch = JSON.parse(localStorage.getItem('currentUser'));
+            const tbody = document.getElementById('myComplaintsTable');
+            const myComplaints = getMyComplaints().filter(c => c.branchId === branch.id);
+            
+            tbody.innerHTML = '';
+            myComplaints.sort((a, b) => b.id - a.id);
+            
+            myComplaints.forEach(c => {
+                tbody.innerHTML += `<tr>
+                    <td><strong>${c.id}</strong></td>
+                    <td>${c.category}</td>
+                    <td><span class="badge ${c.priority === 'Urgent' ? 'bg-danger' : 'bg-secondary'}">${c.priority}</span></td>
+                    <td>${c.details.substring(0, 30)}...</td>
+                    <td>${formatDate(c.date)}</td>
+                    <td><span class="badge ${c.status === 'Pending' ? 'bg-warning' : c.status === 'Working' ? 'bg-info' : 'bg-success'}">${c.status}</span></td>
+                    <td>${formatDate(c.closedDate)}</td>
+                    <td><button class="btn btn-sm btn-outline-primary" onclick="viewComplaint(${c.id})"><i class="fas fa-eye"></i></button></td>
+                </tr>`;
+            });
+        }
+        
+        function submitComplaint(e) {
+            e.preventDefault();
+            const branch = JSON.parse(localStorage.getItem('currentUser'));
+            const masterAdminId = branch.masterAdminId || getCurrentMasterAdminId();
+            
+            const newComplaint = {
+                id: data.counters.complaintId++,
+                branchId: branch.id,
+                branchName: branch.name,
+                category: document.getElementById('compCategory').value,
+                priority: document.getElementById('compPriority').value,
+                details: document.getElementById('compDetails').value,
+                date: getTodayDate(),
+                status: 'Pending',
+                imageData: null,
+                assignedTech: '',
+                assignedHelper: '',
+                closedDate: null,
+                masterAdminId: masterAdminId
+            };
+            
+            const imageInput = document.getElementById('compImage');
+            if(imageInput.files && imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    newComplaint.imageData = e.target.result;
+                    data.complaints.push(newComplaint);
+                    saveData();
+                    alert('Complaint submitted successfully!');
+                    document.getElementById('compDetails').value = '';
+                    document.getElementById('compImage').value = '';
+                    clearImage();
+                    showSection('myComplaints');
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                data.complaints.push(newComplaint);
+                saveData();
+                alert('Complaint submitted successfully!');
+                document.getElementById('compDetails').value = '';
+                showSection('myComplaints');
+            }
+        }
+        
+        function previewImage(input) {
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imgPreview').src = e.target.result;
+                    document.getElementById('imagePreviewBox').classList.remove('d-none');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function clearImage() {
+            document.getElementById('compImage').value = '';
+            document.getElementById('imagePreviewBox').classList.add('d-none');
+        }
+        
+        function viewComplaint(id) {
+            const myComplaints = getMyComplaints();
+            const c = myComplaints.find(comp => comp.id === id);
+            if(!c) return alert('Complaint not found or access denied');
+            
+            const role = localStorage.getItem('activeSession');
+            const myTechnicians = getMyTechnicians();
+            
+            let html = `
+                <div class="row mb-3">
+                    <div class="col-md-6"><strong>Branch:</strong> ${c.branchName}</div>
+                    <div class="col-md-6"><strong>Category:</strong> ${c.category}</div>
+                    <div class="col-md-6"><strong>Priority:</strong> <span class="badge ${c.priority === 'Urgent' ? 'bg-danger' : 'bg-secondary'}">${c.priority}</span></div>
+                    <div class="col-md-6"><strong>Date:</strong> ${formatDate(c.date)}</div>
+                </div>
+                <div class="mb-3"><strong>Details:</strong><br>${c.details}</div>
+            `;
+            
+            if(c.imageData) {
+                html += `<div class="mb-3"><strong>Photo:</strong><br><img src="${c.imageData}" style="max-width: 100%; max-height: 200px;"></div>`;
+            }
+            
+            if(role === 'admin' || role === 'subadmin') {
+                html += `
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label>Status</label>
+                            <select id="compStatusSelect" class="form-select" onchange="updateComplaintStatus(${c.id})">
+                                <option value="Pending" ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Working" ${c.status === 'Working' ? 'selected' : ''}>Working</option>
+                                <option value="Resolved" ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label>Assign Technician</label>
+                            <select id="compTechSelect" class="form-select" onchange="updateComplaintTech(${c.id})">
+                                <option value="">-- Select --</option>
+                                ${myTechnicians.filter(t => t.spec !== 'Helper').map(t => `<option value="${t.id}" ${c.assignedTech == t.id ? 'selected' : ''}>${t.name} (${t.spec})</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label>Assign Helper</label>
+                            <select id="compHelperSelect" class="form-select">
+                                <option value="">-- None --</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('complaintModalTitle').innerText = `Complaint #${c.id}`;
+            document.getElementById('complaintModalBody').innerHTML = html;
+            
+            if(role === 'admin' || role === 'subadmin') {
+                autoSelectHelper(c.id);
+            }
+            
+            new bootstrap.Modal(document.getElementById('complaintModal')).show();
+        }
+        
+        function autoSelectHelper(complaintId) {
+            const myComplaints = getMyComplaints();
+            const myTechnicians = getMyTechnicians();
+            const c = myComplaints.find(comp => comp.id === complaintId);
+            if(!c) return;
+            const techId = document.getElementById('compTechSelect').value;
+            const helperSelect = document.getElementById('compHelperSelect');
+            
+            helperSelect.innerHTML = '<option value="">-- None --</option>';
+            
+            if(techId) {
+                const helpers = myTechnicians.filter(t => t.spec === 'Helper' && t.linkedTechId == techId);
+                helpers.forEach(h => {
+                    helperSelect.innerHTML += `<option value="${h.id}" ${c.assignedHelper == h.id ? 'selected' : ''}>${h.name}</option>`;
+                });
+            }
+        }
+        
+        function updateComplaintStatus(id) {
+            const masterAdminId = getCurrentMasterAdminId();
+            const c = data.complaints.find(comp => comp.id === id);
+            if(c && c.masterAdminId !== masterAdminId) {
+                return alert('Access denied');
+            }
+            c.status = document.getElementById('compStatusSelect').value;
+            if(c.status === 'Resolved') {
+                c.closedDate = getTodayDate();
+            } else {
+                c.closedDate = null;
+            }
+            saveData();
+        }
+        
+        function updateComplaintTech(id) {
+            const masterAdminId = getCurrentMasterAdminId();
+            const c = data.complaints.find(comp => comp.id === id);
+            if(c && c.masterAdminId !== masterAdminId) {
+                return alert('Access denied');
+            }
+            c.assignedTech = document.getElementById('compTechSelect').value;
+            autoSelectHelper(id);
+        }
+
+        // ==================== LETTERS SYSTEM ====================
+        function submitLetter(e) {
+            e.preventDefault();
+            
+            const branch = JSON.parse(localStorage.getItem('currentUser'));
+            const branchData = data.branches.find(b => b.id === branch.id);
+            const masterAdminId = branch.masterAdminId || getCurrentMasterAdminId();
+            
+            const newLetter = {
+                id: data.counters.letterId++,
+                branchId: branch.id,
+                branchName: branch.name,
+                branchHead: branchData ? branchData.branchHead : '',
+                letterType: document.getElementById('letterType').value,
+                addressedTo: document.getElementById('letterAddressedTo').value,
+                subject: document.getElementById('letterSubject').value,
+                content: document.getElementById('letterContent').value,
+                status: 'Pending',
+                date: getTodayDate(),
+                receivedAt: null,
+                reviewedAt: null,
+                reviewedBy: null,
+                response: null,
+                masterAdminId: masterAdminId
+            };
+            
+            data.letters.push(newLetter);
+            saveData();
+            
+            const letterNo = 'LTR-' + String(newLetter.id).padStart(3, '0');
+            alert('Letter sent to HO successfully!\nLetter No: ' + letterNo);
+            
+            document.getElementById('letterSubject').value = '';
+            document.getElementById('letterContent').value = '';
+            document.getElementById('letterType').value = '';
+            document.getElementById('letterAddressedTo').value = '';
+            
+            showSection('myLetters');
+        }
+        
+        // Branch's own letters view
+        function renderMyLetters() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const tbody = document.getElementById('myLettersTable');
+            tbody.innerHTML = '';
+            
+            const myLetters = getMyLetters().filter(l => l.branchId === user.id);
+            
+            if(myLetters.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No letters sent yet.</td></tr>';
+                return;
+            }
+            
+            myLetters.sort((a, b) => b.id - a.id);
+            
+            myLetters.forEach(l => {
+                const statusBadge = l.status === 'Pending' ? 'letter-badge-pending' : 
+                                   l.status === 'Received' ? 'letter-badge-received' : 
+                                   l.status === 'Reviewed' ? 'letter-badge-reviewed' : 'letter-badge-resolved';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>LTR-${String(l.id).padStart(3, '0')}</strong></td>
+                        <td>${l.letterType}</td>
+                        <td>${l.subject}</td>
+                        <td>${l.addressedTo}</td>
+                        <td>${formatDate(l.date)}</td>
+                        <td><span class="badge ${statusBadge}">${l.status}</span></td>
+                        <td><button class="btn btn-sm btn-outline-primary" onclick="viewLetter(${l.id})"><i class="fas fa-eye"></i> View</button></td>
+                    </tr>
+                `;
+            });
+        }
+        
+        // HO's view of all letters
+        function renderAllLetters() {
+            const tbody = document.getElementById('allLettersTable');
+            tbody.innerHTML = '';
+            
+            const allLetters = getMyLetters();
+            
+            if(allLetters.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No letters received yet.</td></tr>';
+                return;
+            }
+            
+            allLetters.sort((a, b) => b.id - a.id);
+            
+            allLetters.forEach(l => {
+                const statusBadge = l.status === 'Pending' ? 'letter-badge-pending' : 
+                                   l.status === 'Received' ? 'letter-badge-received' : 
+                                   l.status === 'Reviewed' ? 'letter-badge-reviewed' : 'letter-badge-resolved';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>LTR-${String(l.id).padStart(3, '0')}</strong></td>
+                        <td>${l.branchName}</td>
+                        <td>${l.branchHead || '-'}</td>
+                        <td>${l.letterType}</td>
+                        <td>${l.subject}</td>
+                        <td>${l.addressedTo}</td>
+                        <td>${formatDate(l.date)}</td>
+                        <td><span class="badge ${statusBadge}">${l.status}</span></td>
+                        <td><button class="btn btn-sm btn-outline-primary" onclick="viewLetter(${l.id})"><i class="fas fa-eye"></i> View</button></td>
+                    </tr>
+                `;
+            });
+        }
+        
+        function viewLetter(id) {
+            const myLetters = getMyLetters();
+            const letter = myLetters.find(l => l.id === id);
+            if(!letter) return alert('Letter not found or access denied');
+            
+            const role = localStorage.getItem('activeSession');
+            
+            // AUTO-MARK: When HO views a pending letter, mark it as "Received"
+            if(role === 'admin' && letter.status === 'Pending') {
+                letter.status = 'Received';
+                letter.receivedAt = getTodayDate();
+                saveData();
+                console.log('Letter marked as received:', letter.id);
+            }
+            
+            document.getElementById('viewLetterTitle').innerText = `LTR-${String(letter.id).padStart(3, '0')} - ${letter.subject}`;
+            
+            let html = `
+                <div class="row mb-3">
+                    <div class="col-md-6"><strong>From:</strong> ${letter.branchName}</div>
+                    <div class="col-md-6"><strong>Branch Head:</strong> ${letter.branchHead || '-'}</div>
+                    <div class="col-md-6"><strong>To:</strong> ${letter.addressedTo}</div>
+                    <div class="col-md-6"><strong>Type:</strong> ${letter.letterType}</div>
+                    <div class="col-md-6"><strong>Date:</strong> ${formatDate(letter.date)}</div>
+                    <div class="col-md-6"><strong>Status:</strong> <span class="badge ${letter.status === 'Pending' ? 'letter-badge-pending' : letter.status === 'Received' ? 'letter-badge-received' : letter.status === 'Reviewed' ? 'letter-badge-reviewed' : 'letter-badge-resolved'}">${letter.status}</span></div>
+                </div>
+                <hr>
+                <div class="mb-3"><strong>Subject:</strong> ${letter.subject}</div>
+                <div class="bg-light p-3 rounded mb-3" style="white-space: pre-wrap;">${letter.content}</div>
+                
+                <div class="bg-primary bg-opacity-10 p-3 rounded mb-3 border border-primary mt-4">
+                    <div class="text-end">
+                        <p class="mb-1"><strong>${letter.branchName}</strong></p>
+                        <p class="mb-1">${letter.branchHead ? letter.branchHead : ''}</p>
+                        <p class="mb-0 fst-italic text-primary">With Your Thanks</p>
+                    </div>
+                </div>
+            `;
+            
+            if(letter.response) {
+                html += `
+                    <div class="bg-success bg-opacity-10 p-3 rounded mb-3 border border-success">
+                        <strong class="text-success">HO Response:</strong>
+                        <p class="mb-0 mt-2" style="white-space: pre-wrap;">${letter.response}</p>
+                    </div>
+                `;
+            }
+            
+            if(role === 'admin') {
+                html += `
+                    <hr>
+                    <div class="mb-3">
+                        <label class="fw-bold">Add Response:</label>
+                        <textarea id="letterResponseInput" class="form-control" rows="3" placeholder="Enter your response...">${letter.response || ''}</textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" onclick="updateLetterStatus(${letter.id}, 'Reviewed')">Mark as Reviewed</button>
+                        <button class="btn btn-success" onclick="updateLetterStatus(${letter.id}, 'Resolved')">Resolve with Response</button>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('viewLetterBody').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('viewLetterModal')).show();
+        }
+        
+        function updateLetterStatus(id, status) {
+            const masterAdminId = getCurrentMasterAdminId();
+            const letter = data.letters.find(l => l.id === id);
+            if(letter && letter.masterAdminId !== masterAdminId) {
+                return alert('Access denied');
+            }
+            letter.status = status;
+            letter.reviewedAt = getTodayDate();
+            letter.reviewedBy = 'HO';
+            
+            const responseInput = document.getElementById('letterResponseInput');
+            if(responseInput && responseInput.value) {
+                letter.response = responseInput.value;
+            }
+            
+            saveData();
+            bootstrap.Modal.getInstance(document.getElementById('viewLetterModal')).hide();
+            renderAllLetters();
+            alert('Letter status updated!');
+        }
+
+        // ==================== REPORTS SYSTEM ====================
+        function initReports() {
+            const subAdminSelect = document.getElementById('reportSubAdmin');
+            subAdminSelect.innerHTML = '<option value="All">All</option>';
+            const mySubAdmins = getMySubAdmins();
+            mySubAdmins.forEach(s => {
+                subAdminSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+            });
+            filterReportBranches();
+            updateReportPreview();
+        }
+        
+        function filterReportBranches() {
+            const subAdminId = document.getElementById('reportSubAdmin').value;
+            const branchSelect = document.getElementById('reportBranch');
+            branchSelect.innerHTML = '<option value="All">All Branches</option>';
+            
+            const myBranches = getMyBranches();
+            myBranches.forEach(b => {
+                if(subAdminId === 'All' || b.assignedTo == subAdminId) {
+                    branchSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+                }
+            });
+            updateReportPreview();
+        }
+        
+        function updateReportPreview() {
+            const startDate = document.getElementById('reportStartDate').value;
+            const endDate = document.getElementById('reportEndDate').value;
+            const status = document.getElementById('reportStatus').value;
+            const searchTerm = document.getElementById('reportSearchInput').value.toLowerCase();
+            const branchId = document.getElementById('reportBranch').value;
+            const subAdminId = document.getElementById('reportSubAdmin').value;
+            
+            let filtered = getFilteredComplaints(startDate, endDate, status, searchTerm, branchId, subAdminId);
+            
+            const tbody = document.getElementById('reportPreviewBody');
+            tbody.innerHTML = '';
+            
+            filtered.forEach(c => {
+                tbody.innerHTML += `<tr>
+                    <td>${c.id}</td>
+                    <td>${c.branchName}</td>
+                    <td>${c.category}</td>
+                    <td><span class="badge ${c.priority === 'Urgent' ? 'bg-danger' : 'bg-secondary'}">${c.priority}</span></td>
+                    <td>${formatDate(c.date)}</td>
+                    <td><span class="badge ${c.status === 'Pending' ? 'bg-warning' : c.status === 'Working' ? 'bg-info' : 'bg-success'}">${c.status}</span></td>
+                    <td>${formatDate(c.closedDate)}</td>
+                </tr>`;
+            });
+        }
+        
+        function getFilteredComplaints(startDate, endDate, status, searchTerm, branchId, subAdminId) {
+            const role = localStorage.getItem('activeSession');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const myBranches = getMyBranches();
+            let list = getMyComplaints();
+            
+            if(role === 'subadmin') {
+                const ids = myBranches.filter(b => b.assignedTo === user.id).map(b => b.id);
+                list = list.filter(c => ids.includes(c.branchId));
+            }
+            
+            return list.filter(c => {
+                const cDateStr = c.date;
+                const inRange = (!startDate || cDateStr >= startDate) && (!endDate || cDateStr <= endDate);
+                const matchStatus = status === 'All' || c.status === status;
+                const matchesSearch = !searchTerm || c.branchName.toLowerCase().includes(searchTerm) || c.id.toString().includes(searchTerm) || c.category.toLowerCase().includes(searchTerm) || (c.details && c.details.toLowerCase().includes(searchTerm));
+                let matchBranch = true;
+                if(branchId !== 'All') {
+                    matchBranch = c.branchId == branchId;
+                } else if(subAdminId !== 'All') {
+                    const allowedBranchIds = myBranches.filter(b => b.assignedTo == subAdminId).map(b => b.id);
+                    matchBranch = allowedBranchIds.includes(c.branchId);
+                }
+                return inRange && matchStatus && matchesSearch && matchBranch;
+            });
+        }
+        
+        function setQuickDate(period) {
+            const today = new Date();
+            let startDate, endDate;
+            
+            if(period === 'today') {
+                startDate = endDate = getTodayDate();
+            } else if(period === 'week') {
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() - today.getDay());
+                startDate = weekStart.toISOString().split('T')[0];
+                endDate = getTodayDate();
+            } else if(period === 'month') {
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+                endDate = getTodayDate();
+            }
+            
+            document.getElementById('reportStartDate').value = startDate;
+            document.getElementById('reportEndDate').value = endDate;
+            updateReportPreview();
+        }
+        
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(18);
+            doc.text('SLS CMS - Complaint Report', 14, 22);
+            doc.setFontSize(10);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30);
+            
+            const startDate = document.getElementById('reportStartDate').value;
+            const endDate = document.getElementById('reportEndDate').value;
+            const status = document.getElementById('reportStatus').value;
+            const searchTerm = document.getElementById('reportSearchInput').value.toLowerCase();
+            const branchId = document.getElementById('reportBranch').value;
+            const subAdminId = document.getElementById('reportSubAdmin').value;
+            
+            let filtered = getFilteredComplaints(startDate, endDate, status, searchTerm, branchId, subAdminId);
+            
+            const tableData = filtered.map(c => [
+                c.id.toString(),
+                c.branchName,
+                c.category,
+                c.priority,
+                formatDate(c.date),
+                c.status,
+                formatDate(c.closedDate)
+            ]);
+            
+            doc.autoTable({
+                head: [['ID', 'Branch', 'Category', 'Priority', 'Date', 'Status', 'Closed']],
+                body: tableData,
+                startY: 35,
+                styles: { fontSize: 8 }
+            });
+            
+            doc.save('sls_report.pdf');
+        }
+
+        // ==================== PRINT FORM ====================
+        function showPrintForm(comp) {
+            if(!comp) return;
+            
+            document.getElementById('printFormContainer').innerHTML = `
+                <div class="form-header">
+                    <img src="${data.brandingSettings.logo}" class="form-logo" alt="Logo">
+                    <h2 class="form-title">${data.formSettings.title}</h2>
+                    <p class="form-subtitle">${data.formSettings.subtitle}</p>
+                </div>
+                <table class="compact-table" style="width: 100%;">
+                    <tr>
+                        <td style="width: 50%;"><strong>Complaint No:</strong> ${comp.id}</td>
+                        <td><strong>Date:</strong> ${formatDate(comp.date)}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Branch:</strong> ${comp.branchName}</td>
+                        <td><strong>Priority:</strong> ${comp.priority}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Category:</strong> ${comp.category}</td>
+                        <td><strong>Status:</strong> ${comp.status}</td>
+                    </tr>
+                </table>
+                
+                <div class="branch-head-section-new">
+                    <span class="section-title">Complaint Details</span>
+                    <p style="white-space: pre-wrap;">${comp.details}</p>
+                </div>
+                
+                <div class="branch-head-section-new" style="margin-top: 5mm;">
+                    <span class="section-title">Remarks / Work Done</span>
+                    <div class="comment-line-improved"></div>
+                    <div class="comment-line-improved"></div>
+                    <div class="comment-line-improved"></div>
+                </div>
+                
+                <table class="compact-table" style="width: 100%; margin-top: 8mm;">
+                    <tr>
+                        <td style="width: 50%;"><strong>Technician:</strong> ${comp.assignedTech ? data.technicians.find(t => t.id == comp.assignedTech)?.name || '-' : '-'}</td>
+                        <td><strong>Helper:</strong> ${comp.assignedHelper ? data.technicians.find(t => t.id == comp.assignedHelper)?.name || '-' : '-'}</td>
+                    </tr>
+                </table>
+                
+                <div id="completionRow" style="margin-top: 5mm; display: ${comp.status === 'Resolved' ? 'block' : 'none'};">
+                    <table class="compact-table" style="width: 100%;">
+                        <tr><td><strong>Closed Date:</strong> ${formatDate(comp.closedDate)}</td></tr>
+                    </table>
+                </div>
+                
+                <div class="sign-section-final">
+                    <div class="sign-box-final">
+                        <div class="sign-line-final"></div>
+                        <p class="sign-label-final">${data.formSettings.sign1}</p>
+                    </div>
+                    <div class="sign-box-final">
+                        <div class="sign-line-final"></div>
+                        <p class="sign-label-final">${data.formSettings.sign2}</p>
+                    </div>
+                    <div class="sign-box-final">
+                        <div class="sign-line-final"></div>
+                        <p class="sign-label-final">${data.formSettings.sign3}</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 10mm; text-align: center;">
+                    <button class="btn btn-primary no-print-btn" onclick="window.print()"><i class="fas fa-print me-2"></i>Print</button>
+                    <button class="btn btn-secondary no-print-btn ms-2" onclick="closePrintView()">Close</button>
+                </div>
+            `;
+            
+            const imgElem = document.getElementById('p_image');
+            if(comp.imageData) { 
+                // Image handling if needed
+            }
+            
+            document.getElementById('printOverlay').style.display = 'flex';
+        }
+        
+        function closePrintView() {
+            document.getElementById('printOverlay').style.display = 'none';
+        }
+
+        // ==================== INITIALIZATION ====================
+        toggleLoginFields();
+        checkSession();
+        applyLoginBackground();
+        loadSavedPassword(); // Load saved password on page load
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
